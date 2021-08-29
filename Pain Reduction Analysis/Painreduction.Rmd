@@ -10,42 +10,141 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```
 
+
+
+
 # Pain Reduction Analysis Project
 
 ## Introduction
   
-Pain reduction - the primary efficacy endpoint of the QUEST Study. Understanding the level of pain reduced holds utmost importance, not only for the clinical team at NEUROS, but more importantly for the under-served post-amputee population seeking treatment. In nearing the end of the study, we have seen an increase in the passing of subjects within the eligibility phase. Specifically, during injection. This short analysis aims to explore the Saline and Lidocaine injections of subjects within the years of 2019 to the month of August 2021, using data extracts derived from the EDC system, Clindex.
+Pain reduction - the primary efficacy endpoint of the QUEST Study. Understanding the level of pain reduced holds utmost importance, not only for the clinical team at NEUROS, but more importantly for the under-served post-amputee population seeking treatment. In nearing the end of the study, we have seen an increase in the passing of subjects within the eligibility phase, specifically, during the saline and lidocaine injections. This short analysis aims to explore the Saline and Lidocaine injections of subjects within the years of 2019 to the month of August 2021, using data extracts derived from the EDC system, Clindex.
 
 # Objectives and Questions
-The following are a few questions this analysis seeks to answer:
+The following are a few questions this analysis seeks to better understand:
 
-- On average, what is the percent in pain reduction subjects are receiving post-saline and lidocaine injection?
+- On average, what is the percent in pain reduction subjects are receiving post-saline and lidocaine injection? By Site?
 
-- What
+- What do the drops in pain look like? Specifically, how do sites compare and look like.
 
+- Based on the passing were seeing how are they passing and if failing how are they failing?
 
-
-
-
-
+- Filter by year 2019,2020, and 2021
 
 
+- What are the pass rates in 2019-2021 by year (the cut from 23rd aug extract)
+
+- how many passed saline, how many passed lidocaines, for all of them
+- based on subjects that passed how much on averae did they pass by?
+-Who failed and passed? by year, and in total (all years 2019-2021 combined)
+
+- then only subjects who passed, I take 0 minute saline mark in those 3 years and that 0 min    column minus 20 minutes to
+    - see what verage pain decraease is, percentage wise
+    - max min, medium,, basic stats
+    - highest performing and least performing sites
 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## In short...
+- sort who passed
+- analyze pain decrease
+- are subjects blowing out water? decrease in pain 70,80,90%?
+- what distribution looka like?
+- How does it look relative to 2019-2020-2021
+- clues on our 3% increase in injection rates
 
-```{r cars}
-summary(cars)
+#  Loading in Libraries
+```{r}
+library(tidyverse)
+library(lubridate)
+library(readr)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+# Filepaths
+```{r}
+pc <-
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+# 1. Importing Data
+```{r}
+# Evaluation Visit
+eval_visit <- read_csv("Data/nm_evalvis (5).csv", locale = locale(encoding = "Latin1"))
+View(nm_evalvis_5_)
+
+# Saline Injections
+saline_inj <- read_csv("Data/nm_saline.csv")
+View(saline_inj)
+
+# Lidocaine Injections
+lidocaine_inj <- read_csv("Data/nm_lidocain.csv")
+View(lidocaine_inj)
+```
+
+# 2. Data Cleaning
+```{r}
+
+eval_visit %>% select(K)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Messing around, trying our Data explorer
+```{r}
+library(DataExplorer)
+
+eval_visit <- eval_visit %>% rename(target_inj = `Target of injection`)
+
+eval_visit %>% 
+  create_report(
+    output_file = "Evaluation_Visit_Report",
+    output_dir  = "Pain Reduction Analysis",
+    y           = 'target_inj',
+    report_title = "EDA Report - Evaluation Visit Report"
+  )
+```
+
+Data Introduction
+```{r}
+eval_visit %>% introduce()
+
+eval_visit %>% plot_intro()
+```
+
+
+Missing Values 
+```{r}
+eval_visit %>%  plot_missing()
+
+eval_visit %>%  plot_histogram()
+```
+
+Continuous Features
+```{r}
+eval_visit %>% plot_density()
+
+eval_visit %>% plot_histogram()
+```
+
+Categorical Features
+```{r}
+eval_visit %>%  plot_bar()
+```
+
+
+Relationships
+```{r}
+eval_visit %>%  plot_correlation(maxcat = 5)
+#try correlation_funnel or Correlation_Funnel()
+```
+
