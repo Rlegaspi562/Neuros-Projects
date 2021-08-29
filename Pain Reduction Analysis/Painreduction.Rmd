@@ -1,0 +1,51 @@
+---
+title: "Pain Reduction Analysis"
+author: "Rumil Legaspi"
+date: "8/26/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+# Pain Reduction Analysis Project
+
+## Introduction
+  
+Pain reduction - the primary efficacy endpoint of the QUEST Study. Understanding the level of pain reduced holds utmost importance, not only for the clinical team at NEUROS, but more importantly for the under-served post-amputee population seeking treatment. In nearing the end of the study, we have seen an increase in the passing of subjects within the eligibility phase. Specifically, during injection. This short analysis aims to explore the Saline and Lidocaine injections of subjects within the years of 2019 to the month of August 2021, using data extracts derived from the EDC system, Clindex.
+
+# Objectives and Questions
+The following are a few questions this analysis seeks to answer:
+
+- On average, what is the percent in pain reduction subjects are receiving post-saline and lidocaine injection?
+
+- What
+
+
+
+
+
+
+
+
+
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
