@@ -108,8 +108,8 @@ inj_data <- left_join(sal_lido_join, eval_visit, by = "KEYID") %>%
 # 2. Data Cleaning
 ```{r}
 # Selecting & renaming Columns
-inj_data %>% 
-  select(key_id              = KEYID,
+cleaning_inj_data <- inj_data %>% 
+  rename(key_id              = KEYID,
          site                = `Site #`,
          subj_id             = `Unique Subject ID`,
          visit_date          = `Date of visit`,
@@ -129,7 +129,7 @@ inj_data %>%
          med_dose            = Dose,
          med_time            = Time,
          time_intl_pain_lvl  = `Time of Pain rating`,
-         intl_pain_lvl       = `What is subject\u0092s Overall limb pain right now?`,
+         intl_pain_lvl       = `What is subject<U+0092>s Overall limb pain right now?`,
          sal_inj_not_done    = `Saline Injection Not Done` ,
          inj_location        = `Target of injection`,
          sal_inj_start_time  = `Time of saline injection`,
@@ -139,7 +139,25 @@ inj_data %>%
          lido_inj_end_time   = `End of Lidocaine Assessment Time`,
          lido_eval_outcome   = `Lidocaine Injection Outcome` 
          
-         )
+         ) %>%  glimpse()
+  
+  # Cleaning data types
+cleaning_inj_data <- as.factor(cleaning_inj_data$sal_0min)
+glimpse(cleaning_inj_data)
+  
+ sal_5min,
+            sal_10min,
+            sal_15min,
+            sal_20min,
+            lido_0min,
+            lido_5min,
+            lido_10min,
+            lido_15min,
+            lido_20min,
+            intl_pain_lvl))  
+  
+#is nRS pain factor?
+  
 ```
 
 eval_visit <- eval_visit %>% rename(target_inj = `Target of injection`)
