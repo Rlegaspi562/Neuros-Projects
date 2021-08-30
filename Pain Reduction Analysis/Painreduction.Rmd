@@ -144,7 +144,10 @@ cleaning_inj_data <- inj_data %>%
   # Cleaning data types
 cleaning_inj_data <- as.factor(cleaning_inj_data$sal_0min)
 glimpse(cleaning_inj_data)
-  
+ 
+
+typeof(cleaning_inj_data$sal_0min)
+#should i go integer or use double?
  sal_5min,
             sal_10min,
             sal_15min,
