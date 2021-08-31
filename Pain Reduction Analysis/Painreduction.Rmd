@@ -61,7 +61,7 @@ library(readr)
 
 # Filepaths
 ```{r}
-pc <-
+#pc <-
 ```
 
 
@@ -69,25 +69,22 @@ pc <-
 ```{r}
 # Evaluation Visit
 eval_visit <- read_csv("Data/nm_evalvis (5).csv", locale = locale(encoding = "Latin1"))
-View(nm_evalvis_5_)
+#View(nm_evalvis_5_)
 
 # Saline Injections
 saline_inj <- read_csv("Data/nm_saline.csv")
-View(saline_inj)
+#View(saline_inj)
 
 # Lidocaine Injections
 lidocaine_inj <- read_csv("Data/nm_lidocain.csv")
-View(lidocaine_inj)
+#View(lidocaine_inj)
 ```
 
-```{r}
-is_tibble(eval_visit)
-```
 
 
 # Joining Datasets
 ```{r}
-# left Joining saline and Lidocaine datasets first
+# 1. left Joining saline and Lidocaine datasets first
 
 glimpse(saline_inj)
 
@@ -96,7 +93,7 @@ glimpse(lidocaine_inj)
 sal_lido_join <- left_join(saline_inj, lidocaine_inj, by = "KEYID") %>% 
   glimpse()
 
-# left joining saline and lido dataset with evaluation visit dataset
+# 2. left joining saline and lido dataset with evaluation visit dataset
 
 inj_data <- left_join(sal_lido_join, eval_visit, by = "KEYID") %>%  
   glimpse()
@@ -111,7 +108,7 @@ inj_data <- left_join(sal_lido_join, eval_visit, by = "KEYID") %>%
 cleaning_inj_data <- inj_data %>% 
   rename(key_id              = KEYID,
          site                = `Site #`,
-         subj_id             = `Unique Subject ID`,
+         subj_id             = `SUB_KEYID.x`,
          visit_date          = `Date of visit`,
          sal_0min            = `0 min.x`,
          sal_5min            = `+ 5 min.x`,
@@ -139,8 +136,30 @@ cleaning_inj_data <- inj_data %>%
          lido_inj_end_time   = `End of Lidocaine Assessment Time`,
          lido_eval_outcome   = `Lidocaine Injection Outcome` 
          
-         ) %>%  glimpse()
-  
+         )
+```
+
+Dropping Columns Not Needed
+
+```{r}
+
+# Checking Column Indexes
+colnames(cleaning_inj_data)
+
+#Dropping by col index
+cleaning_inj_data <- cleaning_inj_data[ -c(3, 4, 10, 11, 12, 28, 29, 33, 34, 39, 40)]
+
+
+```
+
+
+
+
+```{r}
+cleaning_inj_data %>% glimpse()
+```
+
+
   # Cleaning data types
 cleaning_inj_data <- as.factor(cleaning_inj_data$sal_0min)
 glimpse(cleaning_inj_data)
