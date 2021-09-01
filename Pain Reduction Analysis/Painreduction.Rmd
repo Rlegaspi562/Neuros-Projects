@@ -210,7 +210,7 @@ ggplot(new_cleaned_inj_data, aes(x = lido_eval_outcome, fill = inj_location)) + 
 #x indicating a count variable, and the fill as the category
 #Next task is to go back and clean the observations with extra strings and NA's!
 #also remove where target location is na and filter the date to captuer 2019-aug2021
-
+# understand the NAs
 ```
 
 
