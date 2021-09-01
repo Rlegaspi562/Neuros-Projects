@@ -163,8 +163,11 @@ cleaning_inj_data %>% glimpse()
 
 new_cleaned_inj_data <- cleaning_inj_data %>% 
   
-  mutate(visit_date = as.Date(as.character(cleaning_inj_data$visit_date), "%m/%d/%y"))
+  mutate(visit_date = as.Date(as.character(cleaning_inj_data$visit_date), "%m/%d/%y", tz = "UTC"))
+?as.Date
 
+
+  test <- cleaning_inj_data %>% as.Date(cleaning_inj_data$visit_date, format = "%m/%d/%y")
 
 ```
   
@@ -212,6 +215,10 @@ ggplot(new_cleaned_inj_data, aes(x = lido_eval_outcome, fill = inj_location)) + 
 #also remove where target location is na and filter the date to captuer 2019-aug2021
 # understand the NAs
 ```
+```{r}
+filter(new_cleaned_inj_data, visit_date >= "" )
+```
+
 
 
 
