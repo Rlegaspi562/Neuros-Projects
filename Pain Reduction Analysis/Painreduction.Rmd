@@ -28,12 +28,12 @@ The following are a few questions this analysis seeks to better understand:
 
 - Based on the passing were seeing how are they passing and if failing how are they failing?
 
-- Filter by year 2019,2020, and 2021
+- Filter by year through 2019-2021.
 
 
-- What are the pass rates in 2019-2021 by year (the cut from 23rd aug extract)
+- What are the pass rates in 2019-2021 by year (the cut from 23rd aug extract).
 
-- how many passed saline, how many passed lidocaines, for all of them
+- how many passed saline, how many passed lidocaines, for all of them.
 - based on subjects that passed how much on averae did they pass by?
 -Who failed and passed? by year, and in total (all years 2019-2021 combined)
 
@@ -45,12 +45,12 @@ The following are a few questions this analysis seeks to better understand:
 
 
 ## In short...
-- sort who passed
-- analyze pain decrease
-- are subjects blowing out water? decrease in pain 70,80,90%?
-- what distribution looka like?
-- How does it look relative to 2019-2020-2021
-- clues on our 3% increase in injection rates
+- sort who passed?
+- Analyze pain decrease
+- How much are subjects passing by?
+- what does the data distribution look like?
+- How does it look relative to previous years?
+- Any more clues on the increase of injection rates?
 
 #  Loading in Libraries
 ```{r, echo = FALSE, warning = FALSE}
@@ -156,38 +156,63 @@ cleaning_inj_data <- cleaning_inj_data %>%
   relocate(site, subj_id, .after = key_id)
 ```
 
+# Needs Work: More Data Cleaning
 ```{r}
 cleaning_inj_data %>% glimpse()
 
 #Changing Data Types
 
-new_cleaned_inj_data <- cleaning_inj_data %>% 
+visit_date1 <- lubridate::mdy(cleaning_inj_data$visit_date) #converting visit_date into date type
+cleaned_data <- date_cleaned_inj_data %>%  mutate(visit_dates = visit_date1) #Appending vector to data frame
   
-  mutate(visit_date = as.Date(as.character(cleaning_inj_data$visit_date), "%m/%d/%y", tz = "UTC"))
-?as.Date
+  #  test <- "12/9/2014"
+  # lubridate::mdy(test)
+  # #[1] "2014-12-09"
 
 
-  test <- cleaning_inj_data %>% as.Date(cleaning_inj_data$visit_date, format = "%m/%d/%y")
+#Filtering by year (2019-2021)
+ cleaned_data <- cleaned_data %>% 
+   filter(visit_dates >= '2019-01-01') %>% 
+   glimpse()
+
 
 ```
   
 
-A Quick Distribution of our Variables
+## A Quick Distribution of our Variables
+Note: eval outcome should be a factor
 
 ```{r}
-Inj_data_plots <- new_cleaned_inj_data %>%
+colnames(new_cleaned_inj_data)
+Inj_data_plots_14_21 <- new_cleaned_inj_data[-c(1:3, 14)] %>%
   keep(is.numeric) %>%                       # Using numeric columns
-  gather() %>%                                
+  gather() %>%  
   ggplot(aes(value)) +                       #plotting
     facet_wrap(~ key, scales = "free") +
-    geom_density()                         #try geom_density/histo
-Inj_data_plots
+    geom_histogram()                        #try geom_density/histo
+ 
+
+#2014-2021
+Inj_data_plots_14_21
+
+
+Inj_data_plots_19_21 <- cleaned_data %>%
+  keep(is.numeric) %>%                       
+  gather() %>%                                
+  ggplot(aes(value)) +                       
+    facet_wrap(~ key, scales = "free") +
+    geom_histogram()                         
+
+#2019-2021
+Inj_data_plots_19_21
 ```
 
 
-Correlations?
+Correlations
 ```{r}
-install.packages("corrr")
+# install.packages("corrr")
+# install.packages("corrplot")
+library(corrplot)
 library(corrr)
 
 
@@ -198,13 +223,26 @@ Inj_data_corr <- new_cleaned_inj_data %>%
 
 Inj_data_corr
 
-pretty_data_corr <- ggcorrplot( hc.order = TRUE, type = "lower", lab = TRUE,
-                               outline.col = "white",
-                               ggtheme     = ggplot2::theme_gray,
-                               colors      = c("#6D9EC1", "white", "#E46726"))
-pretty_data_corr
+num_inj_data <- new_cleaned_inj_data %>%
+  keep(is.numeric) %>% subset(select = -c(key_id))
+
+cor(num_inj_data)
 
 
+
+# matrix_num_inj_data <- as.matrix(as.data.frame(num_inj_data))
+# # 
+# corrplot(matrix_num_inj_data,  method = "number")
+# # 
+# corrplot(cor(num_inj_data))
+# 
+# pretty_data_corr <- ggcorrplot( hc.order = TRUE, type = "lower", lab = TRUE,
+#                                outline.col = "white",
+#                                ggtheme     = ggplot2::theme_gray,
+#                                colors      = c("#6D9EC1", "white", "#E46726"))
+# pretty_data_corr
+# 
+# 
 table(new_cleaned_inj_data$lido_eval_outcome, new_cleaned_inj_data$inj_location)
 ggplot(new_cleaned_inj_data, aes(x = inj_location, fill = lido_eval_outcome)) + geom_bar()
 
@@ -221,6 +259,8 @@ filter(new_cleaned_inj_data, visit_date >= "" )
 
 
 
+```{r}
+# ANOVA! to tell if is significant difference in means of dependent variable given different levels of the categorical independent vars or combinations of levels of the independent variables
 
 # new_cleaned_inj_data <- data.frame(new_cleaned_inj_data, stringsAsFactors = FALSE)
 # 
@@ -281,7 +321,7 @@ filter(new_cleaned_inj_data, visit_date >= "" )
 So Who Passed?
 ```{r}
 who_passed <- new_cleaned_inj_data %>% 
-  select(lido_eval_outcome, subj_id, site) %>% 
+  select(lido_eval_outcome, subj_id, site)
   
 #   filter()
 #  filer(
@@ -290,81 +330,81 @@ who_passed <- new_cleaned_inj_data %>%
 #  
 # 
 # ?str_detect
-# who_passed
+who_passed
   
 ```
 
   
- - sort who passed
-- analyze pain decrease
-- are subjects blowing out water? decrease in pain 70,80,90%?
-- what distribution looka like?
-- How does it look relative to 2019-2020-2021
-- clues on our 3% increase in injection rates 
+<!--  - sort who passed -->
+<!-- - analyze pain decrease -->
+<!-- - are subjects blowing out water? decrease in pain 70,80,90%? -->
+<!-- - what distribution looka like? -->
+<!-- - How does it look relative to 2019-2020-2021 -->
+<!-- - clues on our 3% increase in injection rates  -->
 
 
 
-<<<<<<< HEAD
-  # Cleaning data types
-cleaning_inj_data <- as.factor(cleaning_inj_data$sal_0min)
-glimpse(cleaning_inj_data)
- 
-
-typeof(cleaning_inj_data$sal_0min)
-#should i go integer or use double?
- sal_5min,
-            sal_10min,
-            sal_15min,
-            sal_20min,
-            lido_0min,
-            lido_5min,
-            lido_10min,
-            lido_15min,
-            lido_20min,
-            intl_pain_lvl))  
-=======
-  
->>>>>>> ac8c250d2d5b50cd54d7d11cdba6dafa5096b800
-  
-  
-  
-  
-   as.Date(visit_date, "%d/%M/%Y") 
+<!-- <<<<<<< HEAD -->
+<!--   # Cleaning data types -->
+<!-- cleaning_inj_data <- as.factor(cleaning_inj_data$sal_0min) -->
+<!-- glimpse(cleaning_inj_data) -->
 
 
+<!-- typeof(cleaning_inj_data$sal_0min) -->
+<!-- #should i go integer or use double? -->
+<!--  sal_5min, -->
+<!--             sal_10min, -->
+<!--             sal_15min, -->
+<!--             sal_20min, -->
+<!--             lido_0min, -->
+<!--             lido_5min, -->
+<!--             lido_10min, -->
+<!--             lido_15min, -->
+<!--             lido_20min, -->
+<!--             intl_pain_lvl))   -->
+<!-- ======= -->
 
-cleaned_inj_data %>% glimpse()
-
-  mutate(Date = as.Date(as.character(Date), "%d/%b/%Y"))
+<!-- >>>>>>> ac8c250d2d5b50cd54d7d11cdba6dafa5096b800 -->
 
 
 
 
-?relocate
-  
-```
+<!--    as.Date(visit_date, "%d/%M/%Y")  -->
+
+
+
+<!-- cleaned_inj_data %>% glimpse() -->
+
+<!--   mutate(Date = as.Date(as.character(Date), "%d/%b/%Y")) -->
 
 
 
 
-```{r}
-cleaned_inj_data %>% glimpse()
-```
+<!-- ?relocate -->
+
+<!-- ``` -->
 
 
-Patients Who Passed Injection from 2019 - Aug
-
-```{r}
-cleaning_inj_data %>% 
-  relocate(site, )
 
 
-```
+<!-- ```{r} -->
+<!-- cleaned_inj_data %>% glimpse() -->
+<!-- ``` -->
 
- 
 
-  
-```
+<!-- Patients Who Passed Injection from 2019 - Aug -->
 
-eval_visit <- eval_visit %>% rename(target_inj = `Target of injection`)
+<!-- ```{r} -->
+<!-- cleaning_inj_data %>%  -->
+<!--   relocate(site, ) -->
+
+
+<!-- ``` -->
+
+
+
+
+<!-- ``` -->
+
+<!-- eval_visit <- eval_visit %>% rename(target_inj = `Target of injection`) -->
 
