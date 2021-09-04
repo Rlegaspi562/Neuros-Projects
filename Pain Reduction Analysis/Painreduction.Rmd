@@ -53,11 +53,14 @@ The following are a few questions this analysis seeks to better understand:
 - Any more clues on the increase of injection rates?
 
 #  Loading in Libraries
-```{r, echo = FALSE, warning = FALSE}
+```{r, echo = FALSE, warning = FALSE, warning=FALSE}
 library(tidyverse)
 library(lubridate)
 library(readr)
 library(cowplot)
+library(plotly)
+library(hrbrthemes)
+
 ```
 
 # Filepaths
@@ -163,7 +166,9 @@ cleaning_inj_data %>% glimpse()
 #Changing Data Types
 
 visit_date1 <- lubridate::mdy(cleaning_inj_data$visit_date) #converting visit_date into date type
-cleaned_data <- date_cleaned_inj_data %>%  mutate(visit_dates = visit_date1) #Appending vector to data frame
+cleaned_data <- cleaning_inj_data %>%  mutate(visit_dates = visit_date1) 
+
+#Appending vector to data frame
   
   #  test <- "12/9/2014"
   # lubridate::mdy(test)
@@ -177,7 +182,35 @@ cleaned_data <- date_cleaned_inj_data %>%  mutate(visit_dates = visit_date1) #Ap
 
 
 ```
-  
+
+
+Remove Extra Characters in Data
+```{r}
+ test2 <-  cleaned_data$inj_location %>% mutate(gsub(pattern = '[0-9]+', replacement =  '', cleaned_data)) %>% glimpse()
+
+?gsub()
+
+?str_replace_all()
+str_replace_all(c('181173 - Bifurcation of Tibial and Common Peroneal nerves',
+                  '180173 - Sciatic Nerve'), 
+                "[:digit:]", "")
+```
+
+
+```{r}
+# Usual area chart
+time_series_plot <- cleaned_data %>%
+  ggplot( aes(x = visit_dates, y = lido_eval_outcome)) +
+    geom_area(fill = "#69b3a2", alpha = 0.5) +
+    geom_line(color = "#69b3a2") +
+    ylab("Lidocaine Evaluation Outcomes") +
+    theme_ipsum()
+
+# Turn it interactive with ggplotly
+time_series_plot <- ggplotly(time_series_plot)
+time_series_plot
+```
+
 
 ## A Quick Distribution of our Variables
 Note: eval outcome should be a factor
@@ -256,6 +289,13 @@ ggplot(new_cleaned_inj_data, aes(x = lido_eval_outcome, fill = inj_location)) + 
 ```{r}
 filter(new_cleaned_inj_data, visit_date >= "" )
 ```
+
+
+```{r}
+
+```
+
+
 
 
 
