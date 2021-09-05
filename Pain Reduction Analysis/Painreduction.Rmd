@@ -186,14 +186,23 @@ cleaned_data <- cleaning_inj_data %>%  mutate(visit_dates = visit_date1)
 
 Remove Extra Characters in Data
 ```{r}
- test2 <-  cleaned_data$inj_location %>% mutate(gsub(pattern = '[0-9]+', replacement =  '', cleaned_data)) %>% glimpse()
 
 ?gsub()
 
 ?str_replace_all()
-str_replace_all(c('181173 - Bifurcation of Tibial and Common Peroneal nerves',
-                  '180173 - Sciatic Nerve'), 
-                "[:digit:]", "")
+
+
+
+#as_tibble(cleaned_data)
+
+
+cleaned_data$inj_location <- str_replace_all(cleaned_data$inj_location, 
+              "[:digit:]|[:punct:]", 
+              "") %>% 
+              str_trim()
+
+cleaned_data$inj_location
+
 ```
 
 
