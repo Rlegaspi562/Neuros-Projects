@@ -141,6 +141,24 @@ cleaning_inj_data <- inj_data %>%
          )
 ```
 
+# Needs Work: More Data Cleaning
+```{r}
+cleaning_inj_data %>% colnames()
+
+#Changing Data Types
+
+visit_date1 <- lubridate::mdy(cleaning_inj_data$visit_date) #converting visit_date into date type
+cleaning_inj_data <- cleaning_inj_data %>%  mutate(visit_dates = visit_date1) %>% 
+  glimpse()
+
+#Appending vector to data frame
+  
+  #  test <- "12/9/2014"
+  # lubridate::mdy(test)
+  # #[1] "2014-12-09"
+```
+
+
 Dropping and Rearranging Columns
 
 ```{r}
@@ -154,32 +172,39 @@ cleaning_inj_data <- cleaning_inj_data[-c(2, 3, 4, 10, 11, 12, 28, 29, 33, 34, 3
                 injection_evaluation_outcome = `Injection Evaluation Outcome`
                 ) 
 
-#Rearranging Columns
+#Rearranging Columns and changing into cleaned_data
 cleaning_inj_data <- cleaning_inj_data %>% 
-  relocate(site, subj_id, .after = key_id)
+  relocate(site, subj_id, visit_dates, .after = key_id)
 ```
 
-# Needs Work: More Data Cleaning
+Remove Extra Characters in Data
 ```{r}
-cleaning_inj_data %>% glimpse()
-
-#Changing Data Types
-
-visit_date1 <- lubridate::mdy(cleaning_inj_data$visit_date) #converting visit_date into date type
-cleaned_data <- cleaning_inj_data %>%  mutate(visit_dates = visit_date1) 
-
-#Appending vector to data frame
-  
-  #  test <- "12/9/2014"
-  # lubridate::mdy(test)
-  # #[1] "2014-12-09"
+#as_tibble(cleaned_data)
 
 
+cleaning_inj_data$inj_location <- str_replace_all(cleaned_data$inj_location, 
+              "[:digit:]|[:punct:]", 
+              "") %>% 
+              str_trim()
+
+#turning into cleaned_data
+cleaned_data <- cleaning_inj_data %>% 
+  mutate(inj_location = cleaning_inj_data$inj_location)
+
+
+```
+
+
+```{r}
 #Filtering by year (2019-2021)
- cleaned_data <- cleaned_data %>% 
+ cleaned_data_19_21 <- cleaned_data %>% 
    filter(visit_dates >= '2019-01-01') %>% 
    glimpse()
 
+ #Filtering by year (2014-2021)
+ cleaned_data_14_21 <- cleaned_data %>% 
+   filter(visit_dates >= '2014-01-01') %>% 
+   glimpse()
 
 ```
 
@@ -196,16 +221,16 @@ Remove Extra Characters in Data
 #as_tibble(cleaned_data)
 
 
-cleaned_data$inj_location <- str_replace_all(cleaned_data$inj_location, 
+cleaning_inj_data$inj_location <- str_replace_all(cleaned_data$inj_location, 
               "[:digit:]|[:punct:]", 
               "") %>% 
               str_trim()
 
-cleaned_data$inj_location
+cleaning_inj_data$inj_location
 
 ```
 
-
+INCOMPLETE
 ```{r}
 # Usual area chart
 time_series_plot <- cleaned_data %>%
@@ -225,8 +250,8 @@ time_series_plot
 Note: eval outcome should be a factor
 
 ```{r}
-colnames(new_cleaned_inj_data)
-Inj_data_plots_14_21 <- new_cleaned_inj_data[-c(1:3, 14)] %>%
+colnames(cleaned_data)
+Inj_data_plots_14_21 <- cleaned_data_14_21[-c(1:3, 14)] %>%
   keep(is.numeric) %>%                       # Using numeric columns
   gather() %>%  
   ggplot(aes(value)) +                       #plotting
@@ -238,7 +263,7 @@ Inj_data_plots_14_21 <- new_cleaned_inj_data[-c(1:3, 14)] %>%
 Inj_data_plots_14_21
 
 
-Inj_data_plots_19_21 <- cleaned_data %>%
+Inj_data_plots_19_21 <- cleaned_data_19_21[-c(1:3, 14)] %>%
   keep(is.numeric) %>%                       
   gather() %>%                                
   ggplot(aes(value)) +                       
@@ -259,13 +284,13 @@ library(corrr)
 
 
 
-Inj_data_corr <- new_cleaned_inj_data %>%
+Inj_data_corr <- cleaned_data %>%
   keep(is.numeric) %>%                       # Using numeric columns
    correlate() %>% fashion()
 
 Inj_data_corr
 
-num_inj_data <- new_cleaned_inj_data %>%
+num_inj_data <- cleaned_data %>%
   keep(is.numeric) %>% subset(select = -c(key_id))
 
 cor(num_inj_data)
@@ -285,7 +310,7 @@ cor(num_inj_data)
 # pretty_data_corr
 # 
 # 
-table(new_cleaned_inj_data$lido_eval_outcome, new_cleaned_inj_data$inj_location)
+table(num_inj_data$lido_eval_outcome, num_inj_data$inj_location)
 ggplot(new_cleaned_inj_data, aes(x = inj_location, fill = lido_eval_outcome)) + geom_bar()
 
 ggplot(new_cleaned_inj_data, aes(x = lido_eval_outcome, fill = inj_location)) + geom_bar()
