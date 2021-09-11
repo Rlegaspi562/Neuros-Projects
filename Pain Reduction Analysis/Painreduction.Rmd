@@ -194,25 +194,48 @@ cleaning_inj_data$inj_location <- str_replace_all(cleaning_inj_data$inj_location
               str_trim()
 
 #cleaning injection_eval_outcome (cleaning in a different way using gsub)
-cleaning_inj_data$injection_evaluation_outcome <- 
-
- #the pattern here is the first 9 characters (thereby taking care of spaces)
-gsub(pattern = "^.{0,9}", replacement = "", x = cleaning_inj_data$injection_evaluation_outcome)
+  #the pattern here is the first 9 characters (thereby taking care of spaces)
+cleaning_inj_data$injection_evaluation_outcome <- gsub(pattern = "^.{0,9}",
+                                                       replacement = "", 
+                                                       x = cleaning_inj_data$injection_evaluation_outcome)
 
 
 
 #Cleaning lido_eval_outcome
+cleaning_inj_data$lido_eval_outcome <- gsub(pattern = "^.{0,9}",
+                                            replacement = "", 
+                                            x = cleaning_inj_data$lido_eval_outcome)
 
 
 #Cleaning sal_eval_outcome
+cleaning_inj_data$sal_eval_outcome <- gsub(pattern = "^.{0,9}",
+                                            replacement = "", 
+                                            x = cleaning_inj_data$sal_eval_outcome )
 
 #cleaning intl_pain_lvl
+cleaning_inj_data$intl_pain_lvl <- gsub(pattern = "^.{0,9}",
+                                            replacement = "", 
+                                            x = cleaning_inj_data$intl_pain_lvl)
 
 #Cleaning Sal_inj_not_done (yes/no)
+cleaning_inj_data$sal_inj_not_done <- gsub(pattern = "^.{0,4}",
+                                            replacement = "", 
+                                            x = cleaning_inj_data$sal_inj_not_done)
+#Cleaning meds_today (yes/no)
+cleaning_inj_data$meds_today <- gsub(pattern = "^.{0,4}",
+                                            replacement = "", 
+                                            x = cleaning_inj_data$meds_today)
+
 
 #appending
 cleaning_inj_data <- cleaning_inj_data %>% 
-  mutate(inj_location = cleaning_inj_data$inj_location)
+  mutate(inj_location = cleaning_inj_data$inj_location,
+         injection_evaluation_outcome = cleaning_inj_data$injection_evaluation_outcome,
+         lido_eval_outcome = cleaning_inj_data$lido_eval_outcome,
+         sal_eval_outcome = cleaning_inj_data$sal_eval_outcome,
+         intl_pain_lvl = cleaning_inj_data$intl_pain_lvl,
+         sal_inj_not_done = cleaning_inj_data$sal_inj_not_done,
+         meds_today = cleaning_inj_data$meds_today)
 
 
 ```
@@ -223,8 +246,14 @@ Changing Data Types
 #Turning inj_location into a factor with 2 levels
 cleaning_inj_data$inj_location <- as.factor(cleaning_inj_data$inj_location) 
 
+#Changing meds_today
+
+#sal_inj_not_done
+
+#Need to see if pain scores should be treated as factors, check email from prof
 
 
+#Changing into cleaned_data
 cleaning_inj_data <- cleaning_inj_data %>% 
   mutate(inj_location = cleaning_inj_data$inj_location)
 
