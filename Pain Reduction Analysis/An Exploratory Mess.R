@@ -3,14 +3,14 @@
 
 library(DataExplorer)
 
-eval_visit <- eval_visit %>% rename(target_inj = `Target of injection`)
+#cleaning_inj_data <- cleaning_inj_data %>% rename(target_inj = `Target of injection`)
 
-eval_visit %>% 
+cleaning_inj_data %>% 
   create_report(
-    output_file = "Evaluation_Visit_Report",
+    output_file = "2Evaluation_Visit_Report",
     output_dir  = "Pain Reduction Analysis",
-    y           = 'target_inj',
-    report_title = "EDA Report - Evaluation Visit Report"
+  
+    report_title = "2EDA Report - Evaluation Visit Report"
   )
 
 

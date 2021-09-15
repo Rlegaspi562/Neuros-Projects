@@ -225,7 +225,10 @@ cleaning_inj_data$sal_inj_not_done <- gsub(pattern = "^.{0,4}",
 cleaning_inj_data$meds_today <- gsub(pattern = "^.{0,4}",
                                             replacement = "", 
                                             x = cleaning_inj_data$meds_today)
-
+#Cleaning lido_inj_not_done 
+cleaning_inj_data$lidocaine_injection_not_done <- gsub(pattern = "^.{0,4}",
+                                            replacement = "", 
+                                            x = cleaning_inj_data$lidocaine_injection_not_done)
 
 #appending
 cleaning_inj_data <- cleaning_inj_data %>% 
@@ -235,7 +238,8 @@ cleaning_inj_data <- cleaning_inj_data %>%
          sal_eval_outcome = cleaning_inj_data$sal_eval_outcome,
          intl_pain_lvl = cleaning_inj_data$intl_pain_lvl,
          sal_inj_not_done = cleaning_inj_data$sal_inj_not_done,
-         meds_today = cleaning_inj_data$meds_today)
+         meds_today = cleaning_inj_data$meds_today,
+         lidocaine_injection_not_done = cleaning_inj_data$lidocaine_injection_not_done)
 
 
 ```
@@ -246,18 +250,31 @@ Changing Data Types
 #Turning inj_location into a factor with 2 levels
 cleaning_inj_data$inj_location <- as.factor(cleaning_inj_data$inj_location) 
 
-#Changing meds_today
-
+#inj_eval_outcome
+cleaning_inj_data$injection_evaluation_outcome <- as.factor(cleaning_inj_data$injection_evaluation_outcome) 
+#sal_eval_outcome
+cleaning_inj_data$sal_eval_outcome <- as.factor(cleaning_inj_data$sal_eval_outcome) 
 #sal_inj_not_done
+cleaning_inj_data$sal_inj_not_done <- as.factor(cleaning_inj_data$sal_inj_not_done) 
+#lido_eval_outcome
+cleaning_inj_data$lido_eval_outcome <- as.factor(cleaning_inj_data$lido_eval_outcome) 
+#lidoocaine_injection_not_done
+cleaning_inj_data$lidocaine_injection_not_done <- as.factor(cleaning_inj_data$lidocaine_injection_not_done) 
+
 
 #Need to see if pain scores should be treated as factors, check email from prof
-
+#can leave as numerics, depends on context though
 
 #Changing into cleaned_data
 cleaning_inj_data <- cleaning_inj_data %>% 
   mutate(inj_location = cleaning_inj_data$inj_location)
 
 
+```
+
+checking data 
+```{r}
+glimpse(cleaning_inj_data)
 ```
 
 
