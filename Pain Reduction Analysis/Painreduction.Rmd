@@ -47,7 +47,7 @@ The following are a few questions this analysis seeks to better understand:
 ## In short...
 - sort who passed?
 - Analyze pain decrease
-- How much are subjects passing by?
+- How much are subjects passing by? intl - abs(sal_20min/lido_20min)
 - what does the data distribution look like?
 - How does it look relative to previous years?
 - Any more clues on the increase of injection rates?
@@ -55,7 +55,7 @@ The following are a few questions this analysis seeks to better understand:
 - See if there is anything interesting that can be found from target location of injection
 
 #  Loading in Libraries
-```{r, echo = FALSE, warning = FALSE, warning=FALSE}
+```{r, echo = FALSE, results = "hide", include = FALSE}
 library(tidyverse)
 library(lubridate)
 library(readr)
@@ -72,7 +72,7 @@ library(hrbrthemes)
 
 
 # 1. Importing Data
-```{r, results = 'hide'}
+```{r, results = "hide", include = FALSE}
 # Evaluation Visit
 eval_visit <- read_csv("Data/nm_evalvis (5).csv", locale = locale(encoding = "Latin1"))
 #View(nm_evalvis_5_)
@@ -143,10 +143,8 @@ cleaning_inj_data <- inj_data %>%
          )
 ```
 
-# Needs Work: More Data Cleaning
+# More Data Cleaning
 ```{r}
-cleaning_inj_data %>% colnames()
-
 #Changing Data Types
 
 visit_date1 <- lubridate::mdy(cleaning_inj_data$visit_date) #converting visit_date into date type
@@ -247,26 +245,31 @@ cleaning_inj_data <- cleaning_inj_data %>%
 
 Changing Data Types
 ```{r}
-#Turning inj_location into a factor with 2 levels
+#Turning variables into factors with 2 or more levels.
+
+#inj_location
 cleaning_inj_data$inj_location <- as.factor(cleaning_inj_data$inj_location) 
 
 #inj_eval_outcome
 cleaning_inj_data$injection_evaluation_outcome <- as.factor(cleaning_inj_data$injection_evaluation_outcome) 
+
 #sal_eval_outcome
 cleaning_inj_data$sal_eval_outcome <- as.factor(cleaning_inj_data$sal_eval_outcome) 
+
 #sal_inj_not_done
 cleaning_inj_data$sal_inj_not_done <- as.factor(cleaning_inj_data$sal_inj_not_done) 
+
 #lido_eval_outcome
 cleaning_inj_data$lido_eval_outcome <- as.factor(cleaning_inj_data$lido_eval_outcome) 
+
 #lidoocaine_injection_not_done
 cleaning_inj_data$lidocaine_injection_not_done <- as.factor(cleaning_inj_data$lidocaine_injection_not_done) 
 
-
-#Need to see if pain scores should be treated as factors, check email from prof
-#can leave as numerics, depends on context though
+#Changing intl_pain level from Chr to numeric
+cleaning_inj_data$intl_pain_lvl <- as.numeric(cleaning_inj_data$intl_pain_lvl)
 
 #Changing into cleaned_data
-cleaning_inj_data <- cleaning_inj_data %>% 
+cleanining_inj_data <- cleaning_inj_data %>% 
   mutate(inj_location = cleaning_inj_data$inj_location)
 
 
@@ -275,6 +278,11 @@ cleaning_inj_data <- cleaning_inj_data %>%
 checking data 
 ```{r}
 glimpse(cleaning_inj_data)
+```
+
+#cleaning to cleaned
+```{r}
+cleaned_data <- cleaning_inj_data
 ```
 
 
@@ -297,12 +305,12 @@ Filtering by years. Two different datasets 2014-21 & 2019-21
 Note: eval outcome should be a factor
 
 ```{r}
-colnames(cleaned_data)
+
 Inj_data_plots_14_21 <- cleaned_data_14_21[-c(1:3, 15)] %>%
   keep(is.numeric) %>%                       # Using numeric columns
   gather() %>%  
   ggplot(aes(value)) +                       #plotting
-    facet_wrap(~ key, scales = "free") +
+    facet_wrap(~ key, scales = "free", ncol = 5) +
     geom_histogram()                        #try geom_density/histo
  
 
@@ -310,16 +318,102 @@ Inj_data_plots_14_21 <- cleaned_data_14_21[-c(1:3, 15)] %>%
 Inj_data_plots_14_21
 
 
+
+
 Inj_data_plots_19_21 <- cleaned_data_19_21[-c(1:3, 15)] %>%
   keep(is.numeric) %>%                       
   gather() %>%                                
-  ggplot(aes(value)) +                       
-    facet_wrap(~ key, scales = "free") +
-    geom_histogram()                         
+  ggplot(aes(value, fill = value)) +  
+    facet_wrap(~ key, ncol = 5) +
+    geom_histogram(bins = 25) 
+
+
 
 #2019-2021
 Inj_data_plots_19_21
 ```
+
+#F8766D
+#00BFC4
+```{r}
+   scale_color_manual(fill = c(lido_0min = "#00BFC4", lido_5in = "#00BFC4", lido_10min = "#00BFC4", lido_15min = "#00BFC4", lido_20min = "#00BFC4", sal_0min = "#F8766D", sal_5in = "#F8766D", sal_10min = "#F8766D", sal_15min = "#F8766D", sal_20min = "#F8766D"))
+```
+
+
+
+
+
+## In short...
+- sort who passed?
+```{r}
+#Creating on pass column
+test_inj_eval_outcome <- cleaning_inj_data %>% 
+  select(injection_evaluation_outcome) %>% 
+  mutate(pass = ifelse(injection_evaluation_outcome == "Pass (pain reduction >= 50%)",
+                       yes = 1,
+                       no = ifelse(injection_evaluation_outcome == "Pass (both saline and lidocaine assessments)",
+                                   yes = 1,
+                                   no = 0)))
+         
+test_inj_eval_outcome
+```
+
+
+```{r}
+count_subjects_passed <- cleaned_data %>% 
+  count(injection_evaluation_outcome) %>% 
+  
+  # Piping our previous output into a barchart to visualize
+ggplot(aes(x = injection_evaluation_outcome, y = n)) +
+  geom_col(show.legend = FALSE) +
+  xlab("Injection Evaluation") +
+  ylab("Frequency") +
+  ggtitle("Frequency of Type of Injection Evaluations") +
+  geom_text(aes(label = n), position = position_dodge(width = 0.9), vjust = -0.25)
+
+# Printing
+count_subjects_passed
+  
+```
+
+
+- Analyze pain decrease
+- How much are subjects passing by? intl - abs(sal_20min/lido_20min)
+
+
+```{r}
+sal_change_in_pain <- abs(cleaned_data$intl_pain_lvl - cleaned_data$sal_20min)
+ mean(sal_change_in_pain, na.rm = TRUE)
+
+#box.plot(cleaned_data$sal_change_in_pain)
+
+ggplot(cleaned_data, aes(sal_change_in_pain, fill = sal_eval_outcome)) +
+  geom_boxplot() 
+
+
+ 
+```
+
+
+
+
+- what does the data distribution look like?
+- How does it look relative to previous years?
+- Any more clues on the increase of injection rates?
+- Which sites are often failing/passing?
+- See if there is anything interesting that can be found from target location of injection
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 Correlations
