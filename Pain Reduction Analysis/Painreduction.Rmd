@@ -114,13 +114,13 @@ cleaning_inj_data <- inj_data %>%
          site                = `Site #`,
          subj_id             = `SUB_KEYID.x`,
          visit_date          = `Date of visit`,
-         sal_0min            = `0 min.x`,
-         sal_5min            = `+ 5 min.x`,
+         sal_00min            = `0 min.x`,
+         sal_05min            = `+ 5 min.x`,
          sal_10min           = `+ 10 min.x`,
          sal_15min           = `+ 15 min.x`,
          sal_20min           = `+ 20 min.x`,
-         lido_0min           = `0 min.y`,
-         lido_5min           = `+ 5 min.y`,
+         lido_00min           = `0 min.y`,
+         lido_05min           = `+ 5 min.y`,
          lido_10min          = `+ 10 min.y`,
          lido_15min          = `+ 15 min.y`,
          lido_20min          = `+ 20 min.y`,
@@ -266,10 +266,10 @@ cleaning_inj_data$lido_eval_outcome <- as.factor(cleaning_inj_data$lido_eval_out
 cleaning_inj_data$lidocaine_injection_not_done <- as.factor(cleaning_inj_data$lidocaine_injection_not_done) 
 
 #Changing intl_pain level from Chr to numeric
-cleaning_inj_data$intl_pain_lvl <- as.numeric(cleaning_inj_data$intl_pain_lvl)
+cleaning_inj_data$intl_pain_lvl <- as.double(cleaning_inj_data$intl_pain_lvl)
 
 #Changing into cleaned_data
-cleanining_inj_data <- cleaning_inj_data %>% 
+cleaning_inj_data <- cleaning_inj_data %>% 
   mutate(inj_location = cleaning_inj_data$inj_location)
 
 
@@ -278,6 +278,7 @@ cleanining_inj_data <- cleaning_inj_data %>%
 checking data 
 ```{r}
 glimpse(cleaning_inj_data)
+colnames(cleaning_inj_data)
 ```
 
 #cleaning to cleaned
@@ -301,33 +302,42 @@ Filtering by years. Two different datasets 2014-21 & 2019-21
 ```
 
 
-## A Quick Distribution of our Variables
+# Starting Analyses
+
+
+## A Distribution of our Variables
 Note: eval outcome should be a factor
 
 ```{r}
 
-Inj_data_plots_14_21 <- cleaned_data_14_21[-c(1:3, 15)] %>%
+Inj_data_plots_14_21 <- cleaned_data_14_21[-c(1:3, 15,22)] %>%
   keep(is.numeric) %>%                       # Using numeric columns
   gather() %>%  
   ggplot(aes(value)) +                       #plotting
     facet_wrap(~ key, scales = "free", ncol = 5) +
-    geom_histogram()                        #try geom_density/histo
+    geom_bar()                     #try geom_density/histo
  
 
 #2014-2021
 Inj_data_plots_14_21
 
 
-
-
-Inj_data_plots_19_21 <- cleaned_data_19_21[-c(1:3, 15)] %>%
-  keep(is.numeric) %>%                       
-  gather() %>%                                
-  ggplot(aes(value, fill = value)) +  
-    facet_wrap(~ key, ncol = 5) +
-    geom_histogram(bins = 25) 
-
-
+Inj_data_plots_19_21 <- cleaned_data_14_21[-c(1:3, 15,22)] %>%
+    keep(is.numeric) %>%                       # Using numeric columns
+  gather() %>%  
+  ggplot(aes(value)) +                       #plotting
+    facet_wrap(~ key, scales = "free",nrow = 2, ncol = 5) +
+    geom_bar()  +
+  scale_fill_brewer(palette = "Set2")
+  
+  
+# 
+#   select(sal_0min, sal_5min, sal_10min, sal_15min, sal_20min,
+#          lido_0min, lido_5min, lido_10min, lido_15min, lido_20min) %>%                                
+#   ggplot(aes(value)) +  
+#   geom_bar() +
+#   facet_wrap(~count, nrow = 2, ncol = 5) +
+#   scale_fill_brewer(palette = "Set2")
 
 #2019-2021
 Inj_data_plots_19_21
