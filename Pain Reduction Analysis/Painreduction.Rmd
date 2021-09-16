@@ -353,6 +353,7 @@ Inj_data_plots_19_21
 ```{r}
    scale_color_manual(fill = c(lido_0min = "#00BFC4", lido_5in = "#00BFC4", lido_10min = "#00BFC4", lido_15min = "#00BFC4", lido_20min = "#00BFC4", sal_0min = "#F8766D", sal_5in = "#F8766D", sal_10min = "#F8766D", sal_15min = "#F8766D", sal_20min = "#F8766D"))
 ```
+
 #by site need to clean NA's
 ```{r}
 ggplot(cleaned_data) +
@@ -371,7 +372,7 @@ ggplot(cleaned_data) +
 ```{r}
 #Creating on pass column
 test_inj_eval_outcome <- cleaning_inj_data %>% 
-  select(injection_evaluation_outcome) %>% 
+  select(subj_id, injection_evaluation_outcome) %>% 
   mutate(pass = ifelse(injection_evaluation_outcome == "Pass (pain reduction >= 50%)",
                        yes = 1,
                        no = ifelse(injection_evaluation_outcome == "Pass (both saline and lidocaine assessments)",
@@ -387,7 +388,8 @@ count_subjects_passed <- cleaned_data %>%
   count(injection_evaluation_outcome) %>% 
   
   # Piping our previous output into a barchart to visualize
-ggplot(aes(x = injection_evaluation_outcome, y = n)) +
+ggplot(aes(x = injection_evaluation_outcome, y=n
+           )) +
   geom_col(show.legend = FALSE) +
   xlab("Injection Evaluation") +
   ylab("Frequency") +
