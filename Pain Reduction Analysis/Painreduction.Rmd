@@ -54,279 +54,6 @@ The following are a few questions this analysis seeks to better understand:
 - Which sites are often failing/passing?
 - See if there is anything interesting that can be found from target location of injection
 
-#  Loading in Libraries
-```{r, echo = FALSE, results = "hide", include = FALSE}
-library(tidyverse)
-library(lubridate)
-library(readr)
-library(cowplot)
-library(plotly)
-library(hrbrthemes)
-
-```
-
-# Filepaths
-```{r}
-#pc <-
-```
-
-
-# 1. Importing Data
-```{r, results = "hide", include = FALSE}
-# Evaluation Visit
-eval_visit <- read_csv("Data/nm_evalvis (5).csv", locale = locale(encoding = "Latin1"))
-#View(nm_evalvis_5_)
-
-# Saline Injections
-saline_inj <- read_csv("Data/nm_saline.csv")
-#View(saline_inj)
-
-# Lidocaine Injections
-lidocaine_inj <- read_csv("Data/nm_lidocain.csv")
-#View(lidocaine_inj)
-```
-
-
-
-# Joining Datasets
-```{r}
-# 1. left Joining saline and Lidocaine datasets first
-
-glimpse(saline_inj)
-
-glimpse(lidocaine_inj)
-
-sal_lido_join <- left_join(saline_inj, lidocaine_inj, by = "KEYID")
-
-# 2. left joining saline and lido dataset with evaluation visit dataset
-
-inj_data <- left_join(sal_lido_join, eval_visit, by = "KEYID") 
-
-```
-
-
-
-# 2. Data Cleaning
-```{r}
-# Selecting & renaming Columns
-cleaning_inj_data <- inj_data %>% 
-  rename(key_id              = KEYID,
-         site                = `Site #`,
-         subj_id             = `SUB_KEYID.x`,
-         visit_date          = `Date of visit`,
-         sal_00min            = `0 min.x`,
-         sal_05min            = `+ 5 min.x`,
-         sal_10min           = `+ 10 min.x`,
-         sal_15min           = `+ 15 min.x`,
-         sal_20min           = `+ 20 min.x`,
-         lido_00min           = `0 min.y`,
-         lido_05min           = `+ 5 min.y`,
-         lido_10min          = `+ 10 min.y`,
-         lido_15min          = `+ 15 min.y`,
-         lido_20min          = `+ 20 min.y`,
-         inj_eval_num        = `Injection Evlaution Form Number`,
-         meds_today          = `N/A, None today`,
-         med_name            = Name,
-         med_dose            = Dose,
-         med_time            = Time,
-         time_intl_pain_lvl  = `Time of Pain rating`,
-         intl_pain_lvl       = `What is subject<U+0092>s Overall limb pain right now?`,
-         sal_inj_not_done    = `Saline Injection Not Done` ,
-         inj_location        = `Target of injection`,
-         sal_inj_start_time  = `Time of saline injection`,
-         sal_inj_end_time    = `End of Saline Assessment Time`,
-         sal_eval_outcome    = `Saline Injection Outcome?`,
-         lido_inj_start_time = `Time of lidocaine injection`,
-         lido_inj_end_time   = `End of Lidocaine Assessment Time`,
-         lido_eval_outcome   = `Lidocaine Injection Outcome` 
-         
-         )
-```
-
-# More Data Cleaning
-```{r}
-#Changing Data Types
-
-visit_date1 <- lubridate::mdy(cleaning_inj_data$visit_date) #converting visit_date into date type
-cleaning_inj_data <- cleaning_inj_data %>%  mutate(visit_dates = visit_date1) %>% 
-  glimpse()
-
-#Appending vector to data frame
-  
-  #  test <- "12/9/2014"
-  # lubridate::mdy(test)
-  # #[1] "2014-12-09"
-```
-
-
-Dropping and Rearranging Columns
-
-```{r}
-
-# Checking Column Indexes
-colnames(cleaning_inj_data)
-
-#Dropping by col index
-cleaning_inj_data <- cleaning_inj_data[-c(2, 3, 4, 10, 11, 12, 28, 29, 33, 34, 39, 40, 43, 44)] %>% rename(subj_id = `Unique Subject ID`,
-                lidocaine_injection_not_done = `Lidocaine Injection Not Done`,
-                injection_evaluation_outcome = `Injection Evaluation Outcome`
-                ) 
-
-#Rearranging Columns and changing into cleaned_data
-cleaning_inj_data <- cleaning_inj_data %>% 
-  relocate(site, subj_id, visit_dates, .after = key_id)
-```
-
-
-
-
-
-Remove Extra Characters in Data
-```{r}
-#as_tibble(cleaned_data)
-
-#Cleaning inj_location
-cleaning_inj_data$inj_location <- str_replace_all(cleaning_inj_data$inj_location, 
-              "[:digit:]|[:punct:]", 
-              "") %>% 
-              str_trim()
-
-#cleaning injection_eval_outcome (cleaning in a different way using gsub)
-  #the pattern here is the first 9 characters (thereby taking care of spaces)
-cleaning_inj_data$injection_evaluation_outcome <- gsub(pattern = "^.{0,9}",
-                                                       replacement = "", 
-                                                       x = cleaning_inj_data$injection_evaluation_outcome)
-
-
-
-#Cleaning lido_eval_outcome
-cleaning_inj_data$lido_eval_outcome <- gsub(pattern = "^.{0,9}",
-                                            replacement = "", 
-                                            x = cleaning_inj_data$lido_eval_outcome)
-
-
-#Cleaning sal_eval_outcome
-cleaning_inj_data$sal_eval_outcome <- gsub(pattern = "^.{0,9}",
-                                            replacement = "", 
-                                            x = cleaning_inj_data$sal_eval_outcome )
-
-#cleaning intl_pain_lvl
-cleaning_inj_data$intl_pain_lvl <- gsub(pattern = "^.{0,9}",
-                                            replacement = "", 
-                                            x = cleaning_inj_data$intl_pain_lvl)
-
-#Cleaning Sal_inj_not_done (yes/no)
-cleaning_inj_data$sal_inj_not_done <- gsub(pattern = "^.{0,4}",
-                                            replacement = "", 
-                                            x = cleaning_inj_data$sal_inj_not_done)
-#Cleaning meds_today (yes/no)
-cleaning_inj_data$meds_today <- gsub(pattern = "^.{0,4}",
-                                            replacement = "", 
-                                            x = cleaning_inj_data$meds_today)
-#Cleaning lido_inj_not_done 
-cleaning_inj_data$lidocaine_injection_not_done <- gsub(pattern = "^.{0,4}",
-                                            replacement = "", 
-                                            x = cleaning_inj_data$lidocaine_injection_not_done)
-
-#site into site_num
-cleaning_inj_data$site <- as.factor(substr(cleaning_inj_data$site,1,2))
-
-
-#appending
-cleaning_inj_data <- cleaning_inj_data %>% 
-  mutate(inj_location = cleaning_inj_data$inj_location,
-         injection_evaluation_outcome = cleaning_inj_data$injection_evaluation_outcome,
-         lido_eval_outcome = cleaning_inj_data$lido_eval_outcome,
-         sal_eval_outcome = cleaning_inj_data$sal_eval_outcome,
-         intl_pain_lvl = cleaning_inj_data$intl_pain_lvl,
-         sal_inj_not_done = cleaning_inj_data$sal_inj_not_done,
-         meds_today = cleaning_inj_data$meds_today,
-         lidocaine_injection_not_done = cleaning_inj_data$lidocaine_injection_not_done,
-         site_num = cleaning_inj_data$site)
-
-
-```
-
-
-Changing Data Types
-```{r}
-#Turning variables into factors with 2 or more levels.
-
-#inj_location
-cleaning_inj_data$inj_location <- as.factor(cleaning_inj_data$inj_location) 
-
-#inj_eval_outcome
-cleaning_inj_data$injection_evaluation_outcome <- as.factor(cleaning_inj_data$injection_evaluation_outcome) 
-
-#sal_eval_outcome
-cleaning_inj_data$sal_eval_outcome <- as.factor(cleaning_inj_data$sal_eval_outcome) 
-
-#sal_inj_not_done
-cleaning_inj_data$sal_inj_not_done <- as.factor(cleaning_inj_data$sal_inj_not_done) 
-
-#lido_eval_outcome
-cleaning_inj_data$lido_eval_outcome <- as.factor(cleaning_inj_data$lido_eval_outcome) 
-
-#lidoocaine_injection_not_done
-cleaning_inj_data$lidocaine_injection_not_done <- as.factor(cleaning_inj_data$lidocaine_injection_not_done) 
-
-#Changing intl_pain level from Chr to numeric
-cleaning_inj_data$intl_pain_lvl <- as.double(cleaning_inj_data$intl_pain_lvl)
-
-#Changing into cleaned_data
-cleaning_inj_data <- cleaning_inj_data %>% 
-  mutate(inj_location = cleaning_inj_data$inj_location)
-
-
-```
-
-
-
-Creating Passed column
-```{r}
-#Creating on pass column
-test_inj_eval_outcome <- cleaning_inj_data %>% 
-  select(subj_id, injection_evaluation_outcome) %>% 
-  mutate(pass = ifelse(injection_evaluation_outcome == "Pass (pain reduction >= 50%)",
-                       yes = 1,
-                       no = ifelse(injection_evaluation_outcome == "Pass (both saline and lidocaine assessments)",
-                                   yes = 1,
-                                   no = 0)))
-         
-test_inj_eval_outcome
-
-cleaning_inj_data2 <- test_inj_eval_outcome %>% mutate(pass = test_inj_eval_outcome$pass) 
-```
-
-
-
-
-checking data 
-```{r}
-glimpse(cleaning_inj_data)
-colnames(cleaning_inj_data)
-```
-
-#cleaning to cleaned
-```{r}
-cleaned_data <- cleaning_inj_data
-```
-
-
-Filtering by years. Two different datasets 2014-21 & 2019-21
-```{r}
-#Filtering by year (2019-2021)
- cleaned_data_19_21 <- cleaned_data %>% 
-   filter(visit_dates >= '2019-01-01') %>% 
-   glimpse()
-
- #Filtering by year (2014-2021)
- cleaned_data_14_21 <- cleaned_data %>% 
-   filter(visit_dates >= '2014-01-01') %>% 
-   glimpse()
-
-```
-
 
 # Starting Analyses
 
@@ -336,7 +63,7 @@ Note: eval outcome should be a factor
 
 ```{r}
 
-Inj_data_plots_14_21 <- cleaned_data_14_21[-c(1:3, 15,22)] %>%
+Inj_data_plots_14_21 <- cleaned_data_14_21[-c(1:3, 15,22,33)] %>%
   keep(is.numeric) %>%                       # Using numeric columns
   gather() %>%  
   ggplot(aes(value)) +                       #plotting
@@ -348,7 +75,7 @@ Inj_data_plots_14_21 <- cleaned_data_14_21[-c(1:3, 15,22)] %>%
 Inj_data_plots_14_21
 
 
-Inj_data_plots_19_21 <- cleaned_data_19_21[-c(1:3, 15,22)] %>%
+Inj_data_plots_19_21 <- cleaned_data_19_21[-c(1:3, 15,22,33)] %>%
     keep(is.numeric) %>%                       # Using numeric columns
   gather() %>%  
   ggplot(aes(value)) +                       #plotting
@@ -377,14 +104,37 @@ Inj_data_plots_19_21
 #by site need to clean NA's
 ```{r}
 ggplot(cleaned_data) +
-  aes(x = site_num, fill = lido_eval_outcome) +
-  geom_bar() +
+  aes() +
+  facet_grid() +
   scale_fill_hue(direction = 1) +
   theme_bw()
+
+
+cleaned_data %>% ggplot(aes( x = site, group = lido_eval_outcome$f, fill = lido_eval_outcome)) +
+  geom_histogram(position = "dodge") +
+  labs(x = site,
+       y = Count, fill = "Lidocaine Evaluation Outcome") +
+  theme_bw()
+
+# ggplot(cleaned_data) +
+#   aes(x = site, fill = lido_eval_outcome) +
+#  geom_bar() +
+#   scale_fill_hue(direction = 1) +
+#   theme_bw()
+
+
+gally <- cleaned_data %>% 
+  select(site, lido_eval_outcome) %>% 
+  ggpairs()
+
 
 ```
 
 
+```{r}
+install.packages("GGally")
+library(GGally)
+```
 
 
 <<<<<<< HEAD
@@ -392,8 +142,10 @@ ggplot(cleaned_data) +
 - who passed and by what site
 ```{r}
 #Creating on pass column
-test_inj_eval_outcome <- cleaning_inj_data %>% 
-  select(injection_evaluation_outcome) %>% 
+subjects_passed <- cleaned_data %>% 
+  select(site, subj_id,injection_evaluation_outcome) %>% 
+  count()
+  
   mutate(pass = ifelse(injection_evaluation_outcome == "Pass (pain reduction >= 50%)",
                        yes = 1,
                        no = ifelse(injection_evaluation_outcome == "Pass (both saline and lidocaine assessments)",
@@ -412,7 +164,19 @@ test_inj_eval_outcome
 
 
 ```{r}
-
+ggplot(cleaned_data) +
+  aes(x = site, fill = inj_location) +
+  geom_bar( position = position_dodge((width = 0.9))) +
+  scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) +
+  scale_fill_hue(direction = 1) +
+  theme_minimal()
+```
+```{r}
+ggplot(cleaned_data) +
+  aes(x = site) +
+  geom_bar(fill = "#112446") +
+  coord_flip() +
+  theme_minimal()
 ```
 
 
@@ -446,18 +210,83 @@ count_subjects_passed
   intl - abs(sal_20min/lido_20min)
   Lido
   
+  Analyzing Change in Pain
+  
 ```{r}
-sal_change_in_pain <- abs(cleaned_data$intl_pain_lvl - cleaned_data$sal_20min)
- mean(sal_change_in_pain, na.rm = TRUE)
 
-#box.plot(cleaned_data$sal_change_in_pain)
-
-ggplot(cleaned_data, aes(sal_change_in_pain, fill = sal_eval_outcome)) +
-  geom_boxplot() 
+injection_pain_change <- cleaning_inj_data %>% mutate(
+  sal_change_in_pain = abs(cleaned_data$intl_pain_lvl - cleaned_data$sal_20min),
+  lido_change_in_pain = abs(cleaned_data$intl_pain_lvl - cleaned_data$lido_20min))
 
 
+saline_pass_boxplot <- injection_pain_change %>% select(
+  sal_change_in_pain, pass)  %>%
+  ggplot(aes(x = pass, y = sal_change_in_pain, fill = pass)) +
+  geom_boxplot() +
+  geom_jitter(width = 0.10, alpha = 0.5) + 
+  labs(x = "Passed Saline Injection", y = "Change In Overall Pain Level") +
+  theme(legend.position = "top") +
+  coord_flip()
+
+saline_pass_boxplot
+
+summary(sal_change_in_pain)
+
+
+lidocaine_pass_boxplot <- ggplot(injection_pain_change, aes(x = pass, y = lido_change_in_pain, fill = pass)) +
+  geom_boxplot() +
+  geom_jitter(width=0.05, alpha=0.5) +
+  labs(x="Passed") +
+  theme(legend.position=  "top") +
+  coord_flip()
+
+lidocaine_pass_boxplot
+summary(lido_change_in_pain)
  
 ```
+
+
+
+
+```{r}
+#Histogram of change in subjects pain levels post 20min Lidocaine Injection
+
+ggplot(injection_pain_change) +
+  aes(x = lido_change_in_pain, fill = pass) +
+  geom_histogram(bins = 10, position = "dodge" ) +
+  scale_fill_hue(direction = 1) +
+  theme_minimal() +
+  theme(legend.position = "top")
+
+
+#Histogram of change in subjects pain levels post 20min Saline Injection
+
+ggplot(injection_pain_change) +
+  aes(x = sal_change_in_pain, fill = pass) +
+  geom_histogram(bins = 10, position = "dodge" ) +
+  scale_fill_hue(direction = 1) +
+  theme_minimal() +
+  theme(legend.position = "top")
+```
+
+
+
+
+
+
+
+```{r}
+cleaned_data %>% 
+  ggplot(aes(x = lido_eval_outcome, y= ))
+```
+
+
+
+
+
+
+
+
 ```{r}
 lido_change_in_pain <- abs(cleaned_data$intl_pain_lvl - cleaned_data$lido_20min)
  mean(lido_change_in_pain, na.rm = TRUE)
@@ -471,6 +300,12 @@ ggplot(cleaned_data, aes(lido_change_in_pain, fill = lido_eval_outcome)) +
 - Which sites are often failing/passing? Look for outliers
 
 
+
+```{r}
+glimpse(cleaned_data_19_21)
+
+```
+       
 
 
 >>>>>>> bdcd6fff7ff59eb40d96883cd28314b127e90bb2
