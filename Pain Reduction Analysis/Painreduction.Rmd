@@ -367,7 +367,7 @@ ggplot(cleaned_data) +
 
 
 ## In short...
-- sort who passed?
+- who passed and by what site
 ```{r}
 #Creating on pass column
 test_inj_eval_outcome <- cleaning_inj_data %>% 
@@ -379,6 +379,15 @@ test_inj_eval_outcome <- cleaning_inj_data %>%
                                    no = 0)))
          
 test_inj_eval_outcome
+```
+
+
+## Who passed by what injection location?
+
+
+
+```{r}
+
 ```
 
 
@@ -401,9 +410,16 @@ count_subjects_passed
 
 
 - Analyze pain decrease
-- How much are subjects passing by? intl - abs(sal_20min/lido_20min)
-
-
+- How much are subjects passing by? 
+  saline:
+  intl - abs(sal_20min/lido_20min)
+  Lido
+  
+- How much are subjects failing by?
+ saline:
+  intl - abs(sal_20min/lido_20min)
+  Lido
+  
 ```{r}
 sal_change_in_pain <- abs(cleaned_data$intl_pain_lvl - cleaned_data$sal_20min)
  mean(sal_change_in_pain, na.rm = TRUE)
@@ -418,12 +434,23 @@ ggplot(cleaned_data, aes(sal_change_in_pain, fill = sal_eval_outcome)) +
 ```
 
 
+- Which sites are often failing/passing? Look for outliers
+
+
 
 
 - what does the data distribution look like?
+
+
+
+
 - How does it look relative to previous years?
 - Any more clues on the increase of injection rates?
-- Which sites are often failing/passing?
+
+
+
+
+
 - See if there is anything interesting that can be found from target location of injection
 
 
