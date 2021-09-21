@@ -137,14 +137,14 @@ library(GGally)
 ```
 
 
-<<<<<<< HEAD
+
 ## In short...
 - who passed and by what site
 ```{r}
 #Creating on pass column
 subjects_passed <- cleaned_data %>% 
   select(site, subj_id,injection_evaluation_outcome) %>% 
-  count()
+  count() 
   
   mutate(pass = ifelse(injection_evaluation_outcome == "Pass (pain reduction >= 50%)",
                        yes = 1,
@@ -154,12 +154,47 @@ subjects_passed <- cleaned_data %>%
          
 test_inj_eval_outcome
 ```
-=======
+
 
 >>>>>>> bdcd6fff7ff59eb40d96883cd28314b127e90bb2
 
 
-## Who passed by what injection location?
+## Of the people that passed where were they injected?
+
+
+```{r}
+inj_pass <- cleaned_data  %>%  select(inj_location, pass) %>% 
+  filter(pass == 1) %>% 
+  group_by(inj_location)
+
+ggplot(aes(inj))
+geom_histogram(inj_pass)
+```
+
+
+```{r}
+s <- ggplot(data = cleaned_data, aes(reorder(site, sal_change_in_pain, na.rm = TRUE), sal_change_in_pain))
+s + geom_boxplot(varwidth=T, fill="plum") + 
+    labs(title="Box plot", 
+         subtitle="Change in Pain During Saline Injection Grouped by Site \nAscending in order of median",
+         caption="Source: Initial Pain - 20 min Saline Pain",
+         x="Site",
+         y="Saline Change In Pain")
+
+
+l <- ggplot(data = cleaned_data, aes(reorder(site, -lido_change_in_pain, na.rm = TRUE), lido_change_in_pain))
+l + geom_boxplot(varwidth=T, fill="plum") + 
+    labs(title="Box plot", 
+         subtitle="Change in Pain During Lidocaine Injection Grouped by Site \nDescending in order of median",
+         caption="Source: Initial Pain - 20 min Lidocaine Pain",
+         x="Site",
+         y="Lidocaine Change In Pain")
+```
+
+```{r}
+?reorder
+```
+
 
 
 
@@ -169,14 +204,44 @@ ggplot(cleaned_data) +
   geom_bar( position = position_dodge((width = 0.9))) +
   scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) +
   scale_fill_hue(direction = 1) +
+  theme(legend.position = "top") +
   theme_minimal()
+
+
+injection_location_summary <- cleaned_data %>% 
+  select(inj_location, site) %>%  summary()
+injection_location_summary
+
+
+
+
+g <- ggplot(cleaned_data, aes(reorder(site, (inj_location), na.rm = TRUE)))
+g + geom_bar(aes(fill=inj_location), width = 0.5) + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) + 
+  labs(title="Histogram on Categorical Variable", 
+       subtitle="Manufacturer across Vehicle Classes") +
+   theme(legend.position = "bottom") 
+
 ```
+
+
+
+Correlologram to examine the correlation of our variables
+
 ```{r}
-ggplot(cleaned_data) +
-  aes(x = site) +
-  geom_bar(fill = "#112446") +
-  coord_flip() +
-  theme_minimal()
+# Correlation matrix
+numeric_cleaned_data <- cleaned_data[-c(1,12)] %>%  keep(is.numeric)
+data(numeric_cleaned_data)
+corr <- round(cor(numeric_cleaned_data), 1) 
+# Plot
+ggcorrplot(corr, hc.order = TRUE, 
+           type = "lower", 
+           lab = TRUE, 
+           lab_size = 3, 
+           method="circle", 
+           colors = c("tomato2", "white", "springgreen3"), 
+           title="Correlogram Injection Data", 
+           ggtheme=theme_bw)
 ```
 
 
@@ -233,12 +298,17 @@ saline_pass_boxplot
 summary(sal_change_in_pain)
 
 
+#delete this line maybe
+
+
+
 lidocaine_pass_boxplot <- ggplot(injection_pain_change, aes(x = pass, y = lido_change_in_pain, fill = pass)) +
   geom_boxplot() +
   geom_jitter(width=0.05, alpha=0.5) +
-  labs(x="Passed") +
+  labs(x="Passed [1] : Failed [0]") +
   theme(legend.position=  "top") +
-  coord_flip()
+  coord_flip()  +
+
 
 lidocaine_pass_boxplot
 summary(lido_change_in_pain)
