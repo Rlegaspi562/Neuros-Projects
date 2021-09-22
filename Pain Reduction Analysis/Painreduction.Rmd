@@ -12,50 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 
-
-# Pain Reduction Analysis Project
-
-## Introduction
-  
-Pain reduction - the primary efficacy endpoint of the QUEST Study. Understanding the level of pain reduced holds utmost importance, not only for the clinical team at NEUROS, but more importantly for the under-served post-amputee population seeking treatment. In nearing the end of the study, we have seen an increase in the passing of subjects within the eligibility phase, specifically, during the saline and lidocaine injections. This short analysis aims to explore the Saline and Lidocaine injections of subjects within the years of 2019 to the month of August 2021, using data extracts derived from the EDC system, Clindex.
-
-# Objectives and Questions
-The following are a few questions this analysis seeks to better understand:
-
-- On average, what is the percent in pain reduction subjects are receiving post-saline and lidocaine injection? By Site?
-
-- What do the drops in pain look like? Specifically, how do sites compare and look like.
-
-- Based on the passing were seeing how are they passing and if failing how are they failing?
-
-- Filter by year through 2019-2021.
-
-
-- What are the pass rates in 2019-2021 by year (the cut from 23rd aug extract).
-
-- how many passed saline, how many passed lidocaines, for all of them.
-- based on subjects that passed how much on averae did they pass by?
--Who failed and passed? by year, and in total (all years 2019-2021 combined)
-
-- then only subjects who passed, I take 0 minute saline mark in those 3 years and that 0 min    column minus 20 minutes to
-    - see what verage pain decraease is, percentage wise
-    - max min, medium,, basic stats
-    - highest performing and least performing sites
-
-
-
-## In short...
-- sort who passed?
-- Analyze pain decrease
-- How much are subjects passing by? intl - abs(sal_20min/lido_20min)
-- what does the data distribution look like?
-- How does it look relative to previous years?
-- Any more clues on the increase of injection rates?
-- Which sites are often failing/passing?
-- See if there is anything interesting that can be found from target location of injection
-
-
-# Starting Analyses
+#Injection Analyses
 
 
 ## A Distribution of our Variables
@@ -63,72 +20,44 @@ Note: eval outcome should be a factor
 
 ```{r}
 
-Inj_data_plots_14_21 <- cleaned_data_14_21[-c(1:3, 15,22,33)] %>%
+Inj_data_plots_14_21 <- cleaned_data_14_21[-c(1:3, 15,22,33:35)] %>%
   keep(is.numeric) %>%                       # Using numeric columns
   gather() %>%  
   ggplot(aes(value)) +                       #plotting
     facet_wrap(~ key, scales = "free", ncol = 5) +
-    geom_bar()                     #try geom_density/histo
- 
+    geom_bar(fill = "#F8766D")  + 
+    labs(title="Injection Pain Distributions", 
+         subtitle="JAN2014-AUG2021",
+         caption="Source: Lidocaine & Saline Pain Levels 0 to 20 minutes",
+         x="Reported Subject Pain Levels During Injections",
+         y="Frequency")
+                 
 
 #2014-2021
 Inj_data_plots_14_21
 
 
-Inj_data_plots_19_21 <- cleaned_data_19_21[-c(1:3, 15,22,33)] %>%
+Inj_data_plots_19_21 <- cleaned_data_19_21[-c(1:3, 15,22,33:35)] %>%
     keep(is.numeric) %>%                       # Using numeric columns
   gather() %>%  
   ggplot(aes(value)) +                       #plotting
     facet_wrap(~ key, scales = "free",nrow = 2, ncol = 5) +
-    geom_bar()  
+    geom_bar(fill = "#00BFC4")  + 
+    labs(title="Injection Pain Distributions", 
+         subtitle="JAN2019 - AUG2021 \nHistograms of Subject Reported Pain Levels",
+         caption="Source: Lidocaine & Saline Pain Levels 0 to 20 minutes",
+         x="Reported Subject Pain Levels During Injections",
+         y="Frequency")
+
   
-  
-# 
-#   select(sal_0min, sal_5min, sal_10min, sal_15min, sal_20min,
-#          lido_0min, lido_5min, lido_10min, lido_15min, lido_20min) %>%                                
-#   ggplot(aes(value)) +  
-#   geom_bar() +
-#   facet_wrap(~count, nrow = 2, ncol = 5) +
-#   scale_fill_brewer(palette = "Set2")
+
 
 #2019-2021
 Inj_data_plots_19_21
 ```
 
-#F8766D
-#00BFC4
-```{r}
-   scale_color_manual(fill = c(lido_0min = "#00BFC4", lido_5in = "#00BFC4", lido_10min = "#00BFC4", lido_15min = "#00BFC4", lido_20min = "#00BFC4", sal_0min = "#F8766D", sal_5in = "#F8766D", sal_10min = "#F8766D", sal_15min = "#F8766D", sal_20min = "#F8766D"))
-```
-
-#by site need to clean NA's
-```{r}
-ggplot(cleaned_data) +
-  aes() +
-  facet_grid() +
-  scale_fill_hue(direction = 1) +
-  theme_bw()
-
-
-cleaned_data %>% ggplot(aes( x = site, group = lido_eval_outcome$f, fill = lido_eval_outcome)) +
-  geom_histogram(position = "dodge") +
-  labs(x = site,
-       y = Count, fill = "Lidocaine Evaluation Outcome") +
-  theme_bw()
-
-# ggplot(cleaned_data) +
-#   aes(x = site, fill = lido_eval_outcome) +
-#  geom_bar() +
-#   scale_fill_hue(direction = 1) +
-#   theme_bw()
-
-
-gally <- cleaned_data %>% 
-  select(site, lido_eval_outcome) %>% 
-  ggpairs()
-
-
-```
+# flip lido and sal and 2019, 2020 & 2021
+#pain level percentage before needle insertion
 
 
 ```{r}
@@ -138,38 +67,137 @@ library(GGally)
 
 
 
-## In short...
-- who passed and by what site
+
+
+Proportion Of Injections Per Site
 ```{r}
-#Creating on pass column
-subjects_passed <- cleaned_data %>% 
-  select(site, subj_id,injection_evaluation_outcome) %>% 
-  count() 
+
+g <- ggplot(cleaned_data, aes(reorder(site, inj_location, na.rm = TRUE)))
+g + geom_bar(aes(fill=inj_location), width = 0.5) + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) + 
+  labs(title="Histogram on Categorical Variable", 
+       subtitle="Manufacturer across Vehicle Classes") +
+   theme(legend.position = "bottom") + 
+    labs(title="Injection Location by Site", 
+         subtitle="Histogram of Injections By Injection Location",
+         caption="Source: Injection Data",
+         x="Site",
+         y="Sum")
+
+
+#Summary injection location
+injection_location_summary <- cleaned_data %>% 
+  select(inj_location, site) %>%  summary()
+
+
+injection_location_summary
+```
+# See this by year 2019-21
+(lower priority)
+
+
+```{r}
+count_subjects_passed <- cleaned_data %>% 
+  count(injection_evaluation_outcome) %>% 
   
-  mutate(pass = ifelse(injection_evaluation_outcome == "Pass (pain reduction >= 50%)",
-                       yes = 1,
-                       no = ifelse(injection_evaluation_outcome == "Pass (both saline and lidocaine assessments)",
-                                   yes = 1,
-                                   no = 0)))
-         
-test_inj_eval_outcome
+  # Piping our previous output into a barchart to visualize
+ggplot(aes(x = injection_evaluation_outcome, y=n
+           )) +
+  geom_col(show.legend = FALSE, fill = "green4") +
+  xlab("Injection Evaluation") +
+  ylab("Frequency") +
+  ggtitle("Injection Evaluations") +
+  geom_text(aes(label = n), position = position_dodge(width = 0.9), vjust = -0.25) + coord_flip()
+
+# Printing
+count_subjects_passed
+  
 ```
 
 
->>>>>>> bdcd6fff7ff59eb40d96883cd28314b127e90bb2
+
+ How much are subjects passing by? 
+ How much are subjects failing by?
+
+  
+  Analyzing Change in Pain
+  
+```{r}
+
+injection_pain_change <- cleaning_inj_data %>% mutate(
+  sal_change_in_pain = abs(cleaned_data$intl_pain_lvl - cleaned_data$sal_20min),
+  lido_change_in_pain = abs(cleaned_data$intl_pain_lvl - cleaned_data$lido_20min))
 
 
-## Of the people that passed where were they injected?
 
+
+saline_pass_boxplot <- injection_pain_change %>% select(
+  sal_change_in_pain, pass)  %>%
+  ggplot(aes(x = pass, y = sal_change_in_pain, fill = pass)) +
+  geom_boxplot() +
+  geom_jitter(width = 0.10, alpha = 0.5) + 
+  labs(x = "Failed [0] : Passed [1]", y = "Change In Overall Pain Level") +
+  theme(legend.position = "top") +
+  coord_flip()  + 
+    labs(title="Boxplot of Total Change in Pain Post Saline", 
+         subtitle="",
+         caption="Source: Lidocaine & Saline Pain Levels 0 to 20 minutes",
+         x="Failed [0] : Passed [1]",
+         y="Change in Pain")
+
+saline_pass_boxplot
+
+
+lidocaine_pass_boxplot <- injection_pain_change %>% select(
+  lido_change_in_pain, pass)  %>%
+  ggplot(aes(x = pass, y = lido_change_in_pain, fill = pass)) +
+  geom_boxplot() +
+  geom_jitter(width = 0.10, alpha = 0.5) + 
+  labs(x = "Failed [0] : Passed [1]", y = "Change In Overall Pain Level") +
+  theme(legend.position = "top") +
+  coord_flip()  + 
+    labs(title="Boxplot of Total Change in Pain Post Lidocaine", 
+         caption="Source: Lidocaine & Saline Pain Levels 0 to 20 minutes",
+         x="Failed [0] : Passed [1]",
+         y="Change in Pain")
+
+lidocaine_pass_boxplot
+ 
+```
+# plot percentage pain decrease relatve to pain saline needle insertion
+
+
+
+
+Pain Levels of subject of subjects post injection
 
 ```{r}
-inj_pass <- cleaned_data  %>%  select(inj_location, pass) %>% 
-  filter(pass == 1) %>% 
-  group_by(inj_location)
 
-ggplot(aes(inj))
-geom_histogram(inj_pass)
+ggplot(injection_pain_change) +
+  aes(x = lido_change_in_pain, fill = pass) +
+  geom_histogram(bins = 10, position = "dodge" ) +
+  scale_fill_hue(direction = 1) +
+  theme_minimal() +
+  theme(legend.position = "top")  + 
+    labs(title="Histogram of change in subjects pain levels post 20min Lidocaine Injection", 
+         caption="Source: Lidocaine & Saline Pain Levels 0 to 20 minutes",
+         x= "Count",
+         y="Frequency")
+
+
+ggplot(injection_pain_change) +
+  aes(x = sal_change_in_pain, fill = pass) +
+  geom_histogram(bins = 10, position = "dodge" ) +
+  scale_fill_hue(direction = 1) +
+  theme_minimal() +
+  theme(legend.position = "top") + 
+    labs(title="Histogram of change in subjects pain levels post 20min Saline Injection", 
+         x="Count",
+         y="Frequency")
 ```
+# percentag pain decrease
+
+## Of the people that passed where were they injected? And by what site?
 
 
 ```{r}
@@ -191,164 +219,12 @@ l + geom_boxplot(varwidth=T, fill="plum") +
          y="Lidocaine Change In Pain")
 ```
 
-```{r}
-?reorder
-```
+# 2019, 2020, 2021 - 
+# pain score
 
 
 
 
-```{r}
-ggplot(cleaned_data) +
-  aes(x = site, fill = inj_location) +
-  geom_bar( position = position_dodge((width = 0.9))) +
-  scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) +
-  scale_fill_hue(direction = 1) +
-  theme(legend.position = "top") +
-  theme_minimal()
-
-
-injection_location_summary <- cleaned_data %>% 
-  select(inj_location, site) %>%  summary()
-injection_location_summary
-
-
-
-
-g <- ggplot(cleaned_data, aes(reorder(site, (inj_location), na.rm = TRUE)))
-g + geom_bar(aes(fill=inj_location), width = 0.5) + 
-  theme(axis.text.x = element_text(angle=65, vjust=0.6)) + 
-  labs(title="Histogram on Categorical Variable", 
-       subtitle="Manufacturer across Vehicle Classes") +
-   theme(legend.position = "bottom") 
-
-```
-
-
-
-Correlologram to examine the correlation of our variables
-
-```{r}
-# Correlation matrix
-numeric_cleaned_data <- cleaned_data[-c(1,12)] %>%  keep(is.numeric)
-data(numeric_cleaned_data)
-corr <- round(cor(numeric_cleaned_data), 1) 
-# Plot
-ggcorrplot(corr, hc.order = TRUE, 
-           type = "lower", 
-           lab = TRUE, 
-           lab_size = 3, 
-           method="circle", 
-           colors = c("tomato2", "white", "springgreen3"), 
-           title="Correlogram Injection Data", 
-           ggtheme=theme_bw)
-```
-
-
-```{r}
-count_subjects_passed <- cleaned_data %>% 
-  count(injection_evaluation_outcome) %>% 
-  
-  # Piping our previous output into a barchart to visualize
-ggplot(aes(x = injection_evaluation_outcome, y=n
-           )) +
-  geom_col(show.legend = FALSE) +
-  xlab("Injection Evaluation") +
-  ylab("Frequency") +
-  ggtitle("Frequency of Type of Injection Evaluations") +
-  geom_text(aes(label = n), position = position_dodge(width = 0.9), vjust = -0.25)
-
-# Printing
-count_subjects_passed
-  
-```
-
-
-- Analyze pain decrease
-- How much are subjects passing by? 
-  saline:
-  intl - abs(sal_20min/lido_20min)
-  Lido
-  
-- How much are subjects failing by?
- saline:
-  intl - abs(sal_20min/lido_20min)
-  Lido
-  
-  Analyzing Change in Pain
-  
-```{r}
-
-injection_pain_change <- cleaning_inj_data %>% mutate(
-  sal_change_in_pain = abs(cleaned_data$intl_pain_lvl - cleaned_data$sal_20min),
-  lido_change_in_pain = abs(cleaned_data$intl_pain_lvl - cleaned_data$lido_20min))
-
-
-saline_pass_boxplot <- injection_pain_change %>% select(
-  sal_change_in_pain, pass)  %>%
-  ggplot(aes(x = pass, y = sal_change_in_pain, fill = pass)) +
-  geom_boxplot() +
-  geom_jitter(width = 0.10, alpha = 0.5) + 
-  labs(x = "Passed Saline Injection", y = "Change In Overall Pain Level") +
-  theme(legend.position = "top") +
-  coord_flip()
-
-saline_pass_boxplot
-
-summary(sal_change_in_pain)
-
-
-#delete this line maybe
-
-
-
-lidocaine_pass_boxplot <- ggplot(injection_pain_change, aes(x = pass, y = lido_change_in_pain, fill = pass)) +
-  geom_boxplot() +
-  geom_jitter(width=0.05, alpha=0.5) +
-  labs(x="Passed [1] : Failed [0]") +
-  theme(legend.position=  "top") +
-  coord_flip()  +
-
-
-lidocaine_pass_boxplot
-summary(lido_change_in_pain)
- 
-```
-
-
-
-
-```{r}
-#Histogram of change in subjects pain levels post 20min Lidocaine Injection
-
-ggplot(injection_pain_change) +
-  aes(x = lido_change_in_pain, fill = pass) +
-  geom_histogram(bins = 10, position = "dodge" ) +
-  scale_fill_hue(direction = 1) +
-  theme_minimal() +
-  theme(legend.position = "top")
-
-
-#Histogram of change in subjects pain levels post 20min Saline Injection
-
-ggplot(injection_pain_change) +
-  aes(x = sal_change_in_pain, fill = pass) +
-  geom_histogram(bins = 10, position = "dodge" ) +
-  scale_fill_hue(direction = 1) +
-  theme_minimal() +
-  theme(legend.position = "top")
-```
-
-
-
-
-
-
-
-```{r}
-cleaned_data %>% 
-  ggplot(aes(x = lido_eval_outcome, y= ))
-```
 
 
 
@@ -358,13 +234,22 @@ cleaned_data %>%
 
 
 ```{r}
-lido_change_in_pain <- abs(cleaned_data$intl_pain_lvl - cleaned_data$lido_20min)
- mean(lido_change_in_pain, na.rm = TRUE)
+lido_change_in_pain2 <- abs(cleaned_data$intl_pain_lvl - cleaned_data$lido_20min)
+ mean(lido_change_in_pain2, na.rm = TRUE)
 
 #box.plot(cleaned_data$sal_change_in_pain)
 
-ggplot(cleaned_data, aes(lido_change_in_pain, fill = lido_eval_outcome)) +
+ggplot(cleaned_data, aes(lido_change_in_pain2, fill = lido_eval_outcome)) +
   geom_boxplot() 
+
+sal_change_in_pain2 <- abs(cleaned_data$intl_pain_lvl - cleaned_data$lido_20min)
+ mean(sal_change_in_pain2, na.rm = TRUE)
+
+#box.plot(cleaned_data$sal_change_in_pain)
+
+ggplot(cleaned_data, aes(sal_change_in_pain, fill = sal_eval_outcome)) +
+  geom_boxplot() 
+
 ```
 ## HEAD
 - Which sites are often failing/passing? Look for outliers
@@ -378,7 +263,7 @@ glimpse(cleaned_data_19_21)
        
 
 
->>>>>>> bdcd6fff7ff59eb40d96883cd28314b127e90bb2
+
 
 
 - pain levels then site
@@ -391,72 +276,19 @@ glimpse(cleaned_data_19_21)
 - How does it look relative to previous years?
 
 - How does it look relative to previous years? jumps
->>>>>>> bdcd6fff7ff59eb40d96883cd28314b127e90bb2
+
+
 - Any more clues on the increase of injection rates?
 
 
 
 
 
-- See if there is anything interesting that can be found from target location of injection
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-Correlations
-```{r}
-# install.packages("corrr")
-# install.packages("corrplot")
-library(corrplot)
-library(corrr)
-
-
-
-Inj_data_corr <- cleaned_data %>%
-  keep(is.numeric) %>%                       # Using numeric columns
-   correlate() %>% fashion()
-
-Inj_data_corr
-
-num_inj_data <- cleaned_data %>%
-  keep(is.numeric) %>% subset(select = -c(key_id))
-
-cor(num_inj_data)
-
-
-
-# matrix_num_inj_data <- as.matrix(as.data.frame(num_inj_data))
-# # 
-# corrplot(matrix_num_inj_data,  method = "number")
-# # 
-# corrplot(cor(num_inj_data))
-# 
-# pretty_data_corr <- ggcorrplot( hc.order = TRUE, type = "lower", lab = TRUE,
-#                                outline.col = "white",
-#                                ggtheme     = ggplot2::theme_gray,
-#                                colors      = c("#6D9EC1", "white", "#E46726"))
-# pretty_data_corr
-# 
-# 
-table(num_inj_data$lido_eval_outcome, num_inj_data$inj_location)
-ggplot(new_cleaned_inj_data, aes(x = inj_location, fill = lido_eval_outcome)) + geom_bar()
-
-ggplot(new_cleaned_inj_data, aes(x = lido_eval_outcome, fill = inj_location)) + geom_bar()
-
-#x indicating a count variable, and the fill as the category
-#Next task is to go back and clean the observations with extra strings and NA's!
-#also remove where target location is na and filter the date to captuer 2019-aug2021
-# understand the NAs
 ```
 ```{r}
 filter(new_cleaned_inj_data, visit_date >= "" )
@@ -469,9 +301,12 @@ filter(new_cleaned_inj_data, visit_date >= "" )
 
 INCOMPLETE: Careful when running
 ```{r}
+
+count()
+
 # Usual area chart
 time_series_plot <- cleaned_data %>%
-  ggplot( aes(x = visit_dates, y = lido_eval_outcome)) +
+  ggplot( aes(x = visit_dates, y = count(lido_eval_outcome)) +
     geom_area(fill = "#69b3a2", alpha = 0.5) +
     geom_line(color = "#69b3a2") +
     ylab("Lidocaine Evaluation Outcomes") +
@@ -482,154 +317,4 @@ time_series_plot <- ggplotly(time_series_plot)
 time_series_plot
 ```
 
-
-
-```{r}
-# ANOVA! to tell if is significant difference in means of dependent variable given different levels of the categorical independent vars or combinations of levels of the independent variables
-
-# new_cleaned_inj_data <- data.frame(new_cleaned_inj_data, stringsAsFactors = FALSE)
-# 
-# class(new_cleaned_inj_data$med_dose)
-# ggplot(pretty_data_corr, aes(x, y)) + geom_point() + theme_bw()
-# cor(pretty_data_corr)
-# 
-# 
-# glimpse(new_cleaned_inj_data)
-# 
-# 
-# new_cleaned_inj_data_fctrs <- new_cleaned_inj_data
-# str(new_cleaned_inj_data_fctrs)
-# 
-# 
-# new_cleaned_inj_data_fctrs ＜- as.factor(new_cleaned_inj_data_fctrs$subj_id)    
-# class(new_cleaned_inj_data_fctrs$subj_id)
-# 
-# new_cleaned_inj_data_fctrs <- as.data.frame(unclass(new_cleaned_inj_data_fctrs))
-# str(new_cleaned_inj_data_fctrs)
-# cor(new_cleaned_inj_data_fctrs)
-
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```{r}
-# Inj_data_plots <- lapply(names(new_cleaned_inj_data), function(var_x){
-#   p <-
-#     ggplot(new_cleaned_inj_data) +
-#     aes_string(var_x)
-# 
-#   if(is.numeric(new_cleaned_inj_data[[var_x]])) {
-#     p <- p + geom_density()
-# 
-#   } else {
-#     p <- p + geom_bar()
-#   }
-# 
-# })
-# 
-# plot_grid(plotlist = Inj_data_plots)
-```
-
-
-
-So Who Passed?
-```{r}
-who_passed <- new_cleaned_inj_data %>% 
-  select(lido_eval_outcome, subj_id, site)
-  
-#   filter()
-#  filer(
-#     lido_eval_outcome == str_detect(lido_eval_outcome, pattern = "Pass")
-#   )
-#  
-# 
-# ?str_detect
-who_passed
-  
-```
-
-  
-<!--  - sort who passed -->
-<!-- - analyze pain decrease -->
-<!-- - are subjects blowing out water? decrease in pain 70,80,90%? -->
-<!-- - what distribution looka like? -->
-<!-- - How does it look relative to 2019-2020-2021 -->
-<!-- - clues on our 3% increase in injection rates  -->
-
-
-
-<!-- <<<<<<< HEAD -->
-<!--   # Cleaning data types -->
-<!-- cleaning_inj_data <- as.factor(cleaning_inj_data$sal_0min) -->
-<!-- glimpse(cleaning_inj_data) -->
-
-
-<!-- typeof(cleaning_inj_data$sal_0min) -->
-<!-- #should i go integer or use double? -->
-<!--  sal_5min, -->
-<!--             sal_10min, -->
-<!--             sal_15min, -->
-<!--             sal_20min, -->
-<!--             lido_0min, -->
-<!--             lido_5min, -->
-<!--             lido_10min, -->
-<!--             lido_15min, -->
-<!--             lido_20min, -->
-<!--             intl_pain_lvl))   -->
-<!-- ======= -->
-
-<!-- >>>>>>> ac8c250d2d5b50cd54d7d11cdba6dafa5096b800 -->
-
-
-
-
-<!--    as.Date(visit_date, "%d/%M/%Y")  -->
-
-
-
-<!-- cleaned_inj_data %>% glimpse() -->
-
-<!--   mutate(Date = as.Date(as.character(Date), "%d/%b/%Y")) -->
-
-
-
-
-<!-- ?relocate -->
-
-<!-- ``` -->
-
-
-
-
-<!-- ```{r} -->
-<!-- cleaned_inj_data %>% glimpse() -->
-<!-- ``` -->
-
-
-<!-- Patients Who Passed Injection from 2019 - Aug -->
-
-<!-- ```{r} -->
-<!-- cleaning_inj_data %>%  -->
-<!--   relocate(site, ) -->
-
-
-<!-- ``` -->
-
-
-
-
-<!-- ``` -->
-
-<!-- eval_visit <- eval_visit %>% rename(target_inj = `Target of injection`) -->
 
