@@ -18,7 +18,7 @@ library(cowplot)
 library(plotly)
 library(hrbrthemes)
 library(ggcorrplot)
-
+library(scales)
 ```
 
 
@@ -226,13 +226,16 @@ cleaning_inj_data$intl_pain_lvl <- as.double(cleaning_inj_data$intl_pain_lvl)
 cleaning_inj_data <- cleaning_inj_data %>% 
   mutate(inj_location = cleaning_inj_data$inj_location)
 
+```
 
-
-#Removed Resecheduled Subjects---------------------
+```{r}
+#Removed Resecheduled Subjects---------------------CAUSES REMOVAL OF NA INJECTION OUTCOMES
 
 cleaning_inj_data <- cleaning_inj_data %>% 
   filter(!str_detect(injection_evaluation_outcome, "Rescheduled Evaluation"))
-    
+```
+
+```{r}
 #Creating Passed column-------------------------------
 
 cleaning_inj_data <- cleaning_inj_data %>% 
@@ -243,7 +246,7 @@ cleaning_inj_data <- cleaning_inj_data %>%
                                    yes = 1,
                                    no = 0 
                                    )))
-ifelse()
+
 
 cleaning_inj_data$pass <- as.factor(cleaning_inj_data$pass)        
 
@@ -258,25 +261,57 @@ cleaning_inj_data <- cleaning_inj_data %>%
                                                 yes = "Pass",
                                                 no = ifelse(sal_eval_outcome == "Fail",
                                                             yes = "Lidocaine Not Injected",
-                                                            no = "Fail")
+                                                            no = ifelse(is.na(injection_evaluation_outcome),
+                                                                          yes = "Fail",
+                                                                          no = "Fail")
     
-  )))
+  ))))
 
 ```
 
-
+Creating change in pain column the into percent change in pain
 ```{r}
+#chain in pain
+
 cleaning_inj_data <- cleaning_inj_data %>% mutate(
   sal_change_in_pain = abs(cleaning_inj_data$intl_pain_lvl - cleaning_inj_data$sal_20min),
   lido_change_in_pain = abs(cleaning_inj_data$intl_pain_lvl - cleaning_inj_data$lido_20min))
-```
-
-
-```{r}
 
 injection_pain_change <- cleaning_inj_data %>% mutate(
   sal_change_in_pain = abs(cleaning_inj_data$intl_pain_lvl - cleaning_inj_data$sal_20min),
   lido_change_in_pain = abs(cleaning_inj_data$intl_pain_lvl - cleaning_inj_data$lido_20min))
+
+#Creating Percent Change in pain
+#((y2-y1) /y1) x 100
+
+cleaning_inj_data <- cleaning_inj_data %>%  mutate(
+  sal_pct_change_in_pain = ((sal_20min - intl_pain_lvl) / intl_pain_lvl) * 100,
+  lido_pct_change_in_pain = ((lido_20min - intl_pain_lvl) / intl_pain_lvl) * 100
+)
+```
+
+```{r}
+#Function to remove decimals
+
+specify_decimal <- function(x, k) trimws(format(round(x, k), nsmall=k))
+
+cleaning_inj_data$sal_pct_change_in_pain <- specify_decimal(cleaning_inj_data$sal_pct_change_in_pain, 0)
+cleaning_inj_data$lido_pct_change_in_pain <- specify_decimal(cleaning_inj_data$lido_pct_change_in_pain, 0) 
+  
+  
+  # cleaning_inj_data$sal_pct_change_in_pain <- sub("\\.\\d+$", "", cleaning_inj_data$sal_pct_change_in_pain) 
+  # cleaning_inj_data$lido_pct_change_in_pain <- sub("\\.\\d+$", "", cleaning_inj_data$lido_pct_change_in_pain)
+  # 
+  # cleaning_inj_data$sal_pct_change_in_pain <- as.numeric(cleaning_inj_data$sal_pct_change_in_pain)
+  # cleaning_inj_data$sal_pct_change_in_pain <- percent(cleaning_inj_data$sal_pct_change_in_pain)
+  #   
+  #   
+  # cleaning_inj_data$sal_pct_change_in_pain <-   percent_format(x = cleaning_inj_data$sal_pct_change_in_pain, scale = 100, scale = 100, sufix = "%")
+  
+    
+  
+ #percent(cleaning_inj_data$sal_pct_change_in_pain)
+ #typeof(cleaning_inj_data$sal_pct_change_in_pain)
 ```
 
 
