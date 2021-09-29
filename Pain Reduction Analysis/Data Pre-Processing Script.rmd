@@ -19,6 +19,7 @@ library(plotly)
 library(hrbrthemes)
 library(ggcorrplot)
 library(scales)
+library(gtsummary)
 ```
 
 
@@ -240,12 +241,16 @@ cleaning_inj_data <- cleaning_inj_data %>%
 
 cleaning_inj_data <- cleaning_inj_data %>% 
  
-  mutate(pass = ifelse(injection_evaluation_outcome == "Pass (pain reduction >= 50%)",
+  mutate(pass = ifelse(injection_evaluation_outcome == "Pass (pain reduction >= 50%)" |injection_evaluation_outcome == "Pass (both saline and lidocaine assessments)", #all the passes
                        yes = 1,
-                       no = ifelse(injection_evaluation_outcome == "Pass (both saline and lidocaine assessments)",
-                                   yes = 1,
-                                   no = 0 
-                                   )))
+                      no = ifelse(injection_evaluation_outcome == "Fail, inadequate pain reduction" | injection_evaluation_outcome == "Fail, inadequate lidocaine pain reduction" | injection_evaluation_outcome == "Fail, response to saline",
+                                                           yes = 0,
+                                                           no = ifelse(is.na(injection_evaluation_outcome) == TRUE & lidocaine_injection_not_done == "Yes",
+                       yes = 0,
+                       no = ifelse(is.na(lidocaine_injection_not_done) == TRUE & is.na(sal_eval_outcome == "Yes"),
+                                   yes = 0,
+                                   no = "NA")))))
+
 
 
 cleaning_inj_data$pass <- as.factor(cleaning_inj_data$pass)        
@@ -264,8 +269,57 @@ cleaning_inj_data <- cleaning_inj_data %>%
                                                             no = ifelse(is.na(injection_evaluation_outcome),
                                                                           yes = "Fail",
                                                                           no = "Fail")
-    
-  ))))
+
+
+
+
+
+
+
+
+
+
+# cleaning_inj_data <- cleaning_inj_data %>% 
+#   
+#   mutate(lido_eval_outcome = ifelse(injection_evaluation_outcome == "Pass (pain reduction >= 50%)" | injection_evaluation_outcome == "Pass (both saline and lidocaine assessments)",
+#                                     yes = "Pass",
+#                                     no = ifelse(injection_evaluation_outcome == "Fail, inadequate lidocaine pain reduction",
+#                                                             yes = "Fail",
+#                                                             no = ifelse(injection_evaluation_outcome == "Fail, response to saline",
+#                                                             yes = "Lidocaine Not Injected",
+#                                                              no = ifelse(injection_evaluation_outcome == "Fail, inadequate pain reduction" & sal_eval_outcome == "Pass",
+#                                                                         yes = "Fail",
+#                                                                         no = ifelse(injection_evaluation_outcome == "Fail, inadequate lidocaine pain reduction",
+#                                                                                     yes = "Fail",
+#                                                                                     no = ifelse(sal_eval_outcome == "Fail" & lidocaine_injection_not_done == "Yes",
+#                                                                                                 yes = "Lidocaine Not Injected",
+#                                                                                                 no  = "Lidocaine Not Injected"
+#                                                                                               )))))))
+#                                                               
+#                                                               
+#                                                               injection_pain_change == "Fail, inadequate lidocaine pain reduction",
+#                                                                         yes = "Fail",
+#                                                                         no = ifelse(sal_eval_outcome == "Fail",
+#                                                                                     yes = "Lidocaine Not Injected",
+#                                                                                     no = ifelse(injection_evaluation_outcome == "Rescheduled Evaluation",
+#                                                                                                 yes = "NA",
+#                                                                                                 no = "Fail"))))))
+#                                                             
+#                                                             
+#                                                             no = "Fail"))))
+#                                                   
+#                                                   ifelse(lidocaine_injection_not_done == "Yes",
+#                                                             yes = "Lidocaine Not Injected",
+#                                                             no = "Lidocaine Not Injected"))))
+#                                                               ifelse(lidocaine_injection_not_done == "NA",
+#                                                                           yes = "Lidocaine Not Injected",
+#                                                                           no = ifelse(sal_inj_not_done == "Yes",
+#                                                                                       yes = "Lidocaine Not Injected",
+#                                                                                       no = ifelse(sal_inj_not_done = "NA",
+#                                                                                                   yes = "Lidocaine Not Injected",
+#                                                                                                   no = "Lidocaine Not Injected")))
+#     
+#   ))))
 
 ```
 
@@ -295,8 +349,12 @@ cleaning_inj_data <- cleaning_inj_data %>%  mutate(
 
 specify_decimal <- function(x, k) trimws(format(round(x, k), nsmall=k))
 
-cleaning_inj_data$sal_pct_change_in_pain <- specify_decimal(cleaning_inj_data$sal_pct_change_in_pain, 0)
-cleaning_inj_data$lido_pct_change_in_pain <- specify_decimal(cleaning_inj_data$lido_pct_change_in_pain, 0) 
+cleaning_inj_data$sal_pct_change_in_pain <- specify_decimal(cleaning_inj_data$sal_pct_change_in_pain, 0) 
+cleaning_inj_data$lido_pct_change_in_pain <- specify_decimal(cleaning_inj_data$lido_pct_change_in_pain, 0)
+
+#as.numeric
+cleaning_inj_data$sal_pct_change_in_pain <- as.numeric(cleaning_inj_data$sal_pct_change_in_pain) 
+cleaning_inj_data$lido_pct_change_in_pain <- as.numeric(cleaning_inj_data$lido_pct_change_in_pain)
   
   
   # cleaning_inj_data$sal_pct_change_in_pain <- sub("\\.\\d+$", "", cleaning_inj_data$sal_pct_change_in_pain) 
