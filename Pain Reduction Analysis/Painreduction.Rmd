@@ -282,8 +282,71 @@ l + geom_boxplot(varwidth=T, fill="plum") +
 
 
 
+```{r}
+pie <- ggplot(cleaned_data_19_21, aes(x = "", fill = factor(inj_location))) + 
+  geom_bar(width = 1) +
+  theme(axis.line = element_blank(), 
+        plot.title = element_text(hjust=0.5)) + 
+  labs(fill="class", 
+       x=NULL, 
+       y=NULL, 
+       title="Pie Chart Injection Location", 
+       caption="Source: mpg")
+  
+pie + coord_polar(theta = "y", start=0)
 
 
+df <- as.data.frame(table(cleaned_data$lido_pct_change_in_pain))
+colnames(df) <- c("class", "freq")
+pie <- ggplot(df, aes(x = "", y=freq, fill = factor(class))) + 
+  geom_bar(width = 1, stat = "identity") +
+  theme(axis.line = element_blank(), 
+        plot.title = element_text(hjust=0.5)) + 
+  labs(fill="class", 
+       x=NULL, 
+       y=NULL, 
+       title="Pie Chart of class", 
+       caption="Source: mpg")
+
+pie + coord_polar(theta = "y", start=0)
+  
+```
+
+
+```{r}
+
+ggplot(cleaned_data_19_21, aes(x=visit_dates)) + 
+  geom_line(aes(y=lido_pct_change_in_pain)) + 
+  labs(title="Time Series Chart", 
+       subtitle="Returns Percentage from 'Economics' Dataset", 
+       caption="Source: Economics", 
+       y="Returns %")
+
+
+
+
+
+
+
+df <- economics[, c("date", "psavert", "uempmed")]
+df <- df[lubridate::year(df$date) %in% c(1967:1981), ]
+
+# labels and breaks for X axis text
+brks <- df$date[seq(1, length(df$date), 12)]
+lbls <- lubridate::year(brks)
+
+# plot
+ggplot(df, aes(x=date)) + 
+  geom_line(aes(y=psavert, col="psavert")) + 
+  geom_line(aes(y=uempmed, col="uempmed")) + 
+  labs(title="Time Series of Returns Percentage", 
+       subtitle="Drawn From Wide Data format", 
+       caption="Source: Economics", y="Returns %") +  # title and caption
+  scale_x_date(labels = lbls, breaks = brks) +  # change to monthly ticks and labels
+  scale_color_manual(name="", 
+                     values = c("psavert"="#00ba38", "uempmed"="#f8766d")) +  # line color
+  theme(panel.grid.minor = element_blank())  # turn off minor grid
+```
 
 
 
