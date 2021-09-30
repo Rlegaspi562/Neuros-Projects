@@ -8,8 +8,8 @@ output: pdf_document
 setwd("U:/Rumil's Folder/R Projects/Neuros-Projects/Pain Reduction Analysis")
 ```
 
+# Loading in Libraries
 
-#  Loading in Libraries
 ```{r, echo = FALSE, results = "hide", include = FALSE}
 library(tidyverse)
 library(lubridate)
@@ -22,38 +22,26 @@ library(scales)
 library(gtsummary)
 ```
 
-
 # 1. Importing Data
+
 ```{r, results = "hide", include = FALSE}
 # Evaluation Visit
-eval_visit <- read_csv("Data/nm_evalvis (5).csv", locale = locale(encoding = "Latin1"))
-#View(nm_evalvis_5_)
+eval_visit <- read_csv("Data/nm_evalvis(8).csv", locale = locale(encoding = "Latin1"))
 
 # Saline Injections
-saline_inj <- read_csv("Data/nm_saline.csv")
-#View(saline_inj)
+saline_inj <- read_csv("Data/nm_saline(1).csv")
 
 # Lidocaine Injections
-lidocaine_inj <- read_csv("Data/nm_lidocain.csv")
-#View(lidocaine_inj)
-
-
+lidocaine_inj <- read_csv("Data/nm_lidocain(1).csv")
 
 # Joining Datasets--------------------------
 
 # 1. left Joining saline and Lidocaine datasets first
-
 glimpse(saline_inj)
-
 glimpse(lidocaine_inj)
-
-
 sal_lido_join <- left_join(saline_inj, lidocaine_inj, by = "KEYID")
-
 # 2. left joining saline and lido dataset with evaluation visit dataset
-
 inj_data <- left_join(sal_lido_join, eval_visit, by = "KEYID") 
-
 
 
 # 2. Data Cleaning----------------------------------------------
@@ -91,79 +79,53 @@ cleaning_inj_data <- inj_data %>%
          lido_eval_outcome   = `Lidocaine Injection Outcome` 
          
          )
-
-
 # More Data Cleaning------------------------------------------------
-
 #Changing Data Types
-
 visit_date1 <- lubridate::mdy(cleaning_inj_data$visit_date) #converting visit_date into date type
 cleaning_inj_data <- cleaning_inj_data %>%  mutate(visit_dates = visit_date1) %>% 
   glimpse()
-
 #Appending vector to data frame
   
   #  test <- "12/9/2014"
   # lubridate::mdy(test)
   # #[1] "2014-12-09"
-
-
-
 # Dropping and Rearranging Columns----------------------------------------
-
-
 # Checking Column Indexes
 colnames(cleaning_inj_data)
-
 #Dropping by col index
 cleaning_inj_data <- cleaning_inj_data[-c(2, 3, 4, 10, 11, 12, 28, 29, 33, 34, 39, 40, 43, 44)] %>% rename(subj_id = `Unique Subject ID`,
                 lidocaine_injection_not_done = `Lidocaine Injection Not Done`,
                 injection_evaluation_outcome = `Injection Evaluation Outcome`
                 ) 
-
 #Rearranging Columns and changing into cleaned_data
 cleaning_inj_data <- cleaning_inj_data %>% 
   relocate(site, subj_id, visit_dates, .after = key_id)
 
 
-
-
-
-
 #Remove Extra Characters in Data------------------
-
 #as_tibble(cleaned_data)
-
 #Cleaning inj_location
 cleaning_inj_data$inj_location <- str_replace_all(cleaning_inj_data$inj_location, 
               "[:digit:]|[:punct:]", 
               "") %>% 
               str_trim()
-
 #cleaning injection_eval_outcome (cleaning in a different way using gsub)
   #the pattern here is the first 9 characters (thereby taking care of spaces)
 cleaning_inj_data$injection_evaluation_outcome <- gsub(pattern = "^.{0,9}",
                                                        replacement = "", 
                                                        x = cleaning_inj_data$injection_evaluation_outcome)
-
-
-
 #Cleaning lido_eval_outcome
 cleaning_inj_data$lido_eval_outcome <- gsub(pattern = "^.{0,9}",
                                             replacement = "", 
                                             x = cleaning_inj_data$lido_eval_outcome)
-
-
 #Cleaning sal_eval_outcome
 cleaning_inj_data$sal_eval_outcome <- gsub(pattern = "^.{0,9}",
                                             replacement = "", 
                                             x = cleaning_inj_data$sal_eval_outcome )
-
 #cleaning intl_pain_lvl
 cleaning_inj_data$intl_pain_lvl <- gsub(pattern = "^.{0,9}",
                                             replacement = "", 
                                             x = cleaning_inj_data$intl_pain_lvl)
-
 #Cleaning Sal_inj_not_done (yes/no)
 cleaning_inj_data$sal_inj_not_done <- gsub(pattern = "^.{0,4}",
                                             replacement = "", 
@@ -176,11 +138,8 @@ cleaning_inj_data$meds_today <- gsub(pattern = "^.{0,4}",
 cleaning_inj_data$lidocaine_injection_not_done <- gsub(pattern = "^.{0,4}",
                                             replacement = "", 
                                             x = cleaning_inj_data$lidocaine_injection_not_done)
-
 #site into site_num
 cleaning_inj_data$site <- as.factor(substr(cleaning_inj_data$site,1,2))
-
-
 #appending
 cleaning_inj_data <- cleaning_inj_data %>% 
   mutate(inj_location = cleaning_inj_data$inj_location,
@@ -192,56 +151,38 @@ cleaning_inj_data <- cleaning_inj_data %>%
          meds_today = cleaning_inj_data$meds_today,
          lidocaine_injection_not_done = cleaning_inj_data$lidocaine_injection_not_done
          )
-
-
-
 #Changing Data Types------------------------------------
-
 #Turning variables into factors with 2 or more levels.
-
 #inj_location
 cleaning_inj_data$inj_location <- as.factor(cleaning_inj_data$inj_location) 
-
 #inj_eval_outcome
 cleaning_inj_data$injection_evaluation_outcome <- as.factor(cleaning_inj_data$injection_evaluation_outcome) 
-
 #sal_eval_outcome
 cleaning_inj_data$sal_eval_outcome <- as.factor(cleaning_inj_data$sal_eval_outcome) 
-
 #sal_inj_not_done
 cleaning_inj_data$sal_inj_not_done <- as.factor(cleaning_inj_data$sal_inj_not_done) 
-
 #lido_eval_outcome
 cleaning_inj_data$lido_eval_outcome <- as.factor(cleaning_inj_data$lido_eval_outcome) 
-
 #lidoocaine_injection_not_done
 cleaning_inj_data$lidocaine_injection_not_done <- as.factor(cleaning_inj_data$lidocaine_injection_not_done) 
-
 #Changing intl_pain level from Chr to numeric
 cleaning_inj_data$intl_pain_lvl <- as.double(cleaning_inj_data$intl_pain_lvl)
-
-
-
-
 #Changing into cleaned_data
 cleaning_inj_data <- cleaning_inj_data %>% 
   mutate(inj_location = cleaning_inj_data$inj_location)
-
 ```
 
 ```{r}
 #Removed Resecheduled Subjects---------------------CAUSES REMOVAL OF NA INJECTION OUTCOMES
-
 cleaning_inj_data <- cleaning_inj_data %>% 
   filter(!str_detect(injection_evaluation_outcome, "Rescheduled Evaluation"))
 ```
 
 ```{r}
-#Creating Passed column-------------------------------
-
+#Creating outcome column-------------------------------
 cleaning_inj_data <- cleaning_inj_data %>% 
  
-  mutate(pass = ifelse(injection_evaluation_outcome == "Pass (pain reduction >= 50%)" |injection_evaluation_outcome == "Pass (both saline and lidocaine assessments)", #all the passes
+  mutate(outcome = ifelse(injection_evaluation_outcome == "Pass (pain reduction >= 50%)" |injection_evaluation_outcome == "Pass (both saline and lidocaine assessments)", #all the passes
                        yes = 1,
                       no = ifelse(injection_evaluation_outcome == "Fail, inadequate pain reduction" | injection_evaluation_outcome == "Fail, inadequate lidocaine pain reduction" | injection_evaluation_outcome == "Fail, response to saline",
                                                            yes = 0,
@@ -250,14 +191,10 @@ cleaning_inj_data <- cleaning_inj_data %>%
                        no = ifelse(is.na(lidocaine_injection_not_done) == TRUE & is.na(sal_eval_outcome == "Yes"),
                                    yes = 0,
                                    no = "NA")))))
-
-
-
-cleaning_inj_data$pass <- as.factor(cleaning_inj_data$pass)        
+cleaning_inj_data$pass <- as.factor(cleaning_inj_data$outcome) 
 
 
 #Cleaning Lido_evaluation_outcome column
-
 cleaning_inj_data <- cleaning_inj_data %>% 
   
   mutate(lido_eval_outcome = ifelse(injection_evaluation_outcome == "Pass (pain reduction >= 50%)",
@@ -268,17 +205,11 @@ cleaning_inj_data <- cleaning_inj_data %>%
                                                             yes = "Lidocaine Not Injected",
                                                             no = ifelse(is.na(injection_evaluation_outcome),
                                                                           yes = "Fail",
-                                                                          no = "Fail")
-
-
-
-
-
-
-
-
-
-
+                                                                          no = "Fail")))))
+                                                          
+                                                            
+                                                            
+                                                            
 # cleaning_inj_data <- cleaning_inj_data %>% 
 #   
 #   mutate(lido_eval_outcome = ifelse(injection_evaluation_outcome == "Pass (pain reduction >= 50%)" | injection_evaluation_outcome == "Pass (both saline and lidocaine assessments)",
@@ -320,13 +251,12 @@ cleaning_inj_data <- cleaning_inj_data %>%
 #                                                                                                   no = "Lidocaine Not Injected")))
 #     
 #   ))))
-
 ```
 
 Creating change in pain column the into percent change in pain
-```{r}
-#chain in pain
 
+```{r}
+# Change in pain
 cleaning_inj_data <- cleaning_inj_data %>% mutate(
   sal_change_in_pain = abs(cleaning_inj_data$intl_pain_lvl - cleaning_inj_data$sal_20min),
   lido_change_in_pain = abs(cleaning_inj_data$intl_pain_lvl - cleaning_inj_data$lido_20min))
@@ -335,9 +265,8 @@ injection_pain_change <- cleaning_inj_data %>% mutate(
   sal_change_in_pain = abs(cleaning_inj_data$intl_pain_lvl - cleaning_inj_data$sal_20min),
   lido_change_in_pain = abs(cleaning_inj_data$intl_pain_lvl - cleaning_inj_data$lido_20min))
 
-#Creating Percent Change in pain
+# Percent Change in pain
 #((y2-y1) /y1) x 100
-
 cleaning_inj_data <- cleaning_inj_data %>%  mutate(
   sal_pct_change_in_pain = ((sal_20min - intl_pain_lvl) / intl_pain_lvl) * 100,
   lido_pct_change_in_pain = ((lido_20min - intl_pain_lvl) / intl_pain_lvl) * 100
@@ -346,17 +275,16 @@ cleaning_inj_data <- cleaning_inj_data %>%  mutate(
 
 ```{r}
 #Function to remove decimals
-
 specify_decimal <- function(x, k) trimws(format(round(x, k), nsmall=k))
-
 cleaning_inj_data$sal_pct_change_in_pain <- specify_decimal(cleaning_inj_data$sal_pct_change_in_pain, 0) 
 cleaning_inj_data$lido_pct_change_in_pain <- specify_decimal(cleaning_inj_data$lido_pct_change_in_pain, 0)
 
-#as.numeric
+# Into numeric data type
 cleaning_inj_data$sal_pct_change_in_pain <- as.numeric(cleaning_inj_data$sal_pct_change_in_pain) 
 cleaning_inj_data$lido_pct_change_in_pain <- as.numeric(cleaning_inj_data$lido_pct_change_in_pain)
   
   
+#To manually remove decimals in strings using regex
   # cleaning_inj_data$sal_pct_change_in_pain <- sub("\\.\\d+$", "", cleaning_inj_data$sal_pct_change_in_pain) 
   # cleaning_inj_data$lido_pct_change_in_pain <- sub("\\.\\d+$", "", cleaning_inj_data$lido_pct_change_in_pain)
   # 
@@ -372,30 +300,44 @@ cleaning_inj_data$lido_pct_change_in_pain <- as.numeric(cleaning_inj_data$lido_p
  #typeof(cleaning_inj_data$sal_pct_change_in_pain)
 ```
 
+\#cleaning to cleaned
 
-
-#cleaning to cleaned
 ```{r}
 cleaned_data <- cleaning_inj_data
 colnames(cleaned_data)
 ```
 
-
 Filtering by years. Two different datasets 2014-21 & 2019-21
-```{r}
-#Filtering by year (2019-2021)
- cleaned_data_19_21 <- cleaned_data %>% 
-   filter(visit_dates >= '2019-01-01') %>% 
-   glimpse()
 
+```{r}
  #Filtering by year (2014-2021)
  cleaned_data_14_21 <- cleaned_data %>% 
    filter(visit_dates >= '2014-01-01') %>% 
    glimpse()
 
+#Filtering by year (2019-2021)
+ cleaned_data_19_21 <- cleaned_data %>% 
+   filter(visit_dates >= '2019-01-01') %>% 
+   glimpse()
+ 
+ #Filtering by year (2019)
+ cleaned_data_19 <- cleaned_data %>% 
+   filter(visit_dates >= '2019-01-01' & visit_dates <= '2019-12-31') %>% 
+   glimpse()
+ 
+ #Filtering by year (2020)
+ cleaned_data_20 <- cleaned_data %>% 
+   filter(visit_dates >= '2020-01-01' & visit_dates <= '2020-12-31') %>% 
+   glimpse()
+ 
+  #Filtering by year (2021)
+ cleaned_data_21 <- cleaned_data %>% 
+   filter(visit_dates >= '2021-01-01' & visit_dates <= '2021-12-31') %>% 
+   glimpse()
+ #s
+ 
 ```
+
 ```{r}
 colnames(cleaned_data_19_21)
 ```
-
-
