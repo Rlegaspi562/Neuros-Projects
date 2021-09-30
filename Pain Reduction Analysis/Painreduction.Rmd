@@ -107,6 +107,136 @@ prep.Inj_data_plots_19_21 <- prep.Inj_data_plots_19_21 %>%
 
 #2019-2021
 Inj_data_plots_19_21
+
+
+
+#2019 Only
+
+
+prep.Inj_data_plots_19 <- cleaned_data_19[-c(1:3, 15,22,33:35)]
+
+prep.Inj_data_plots_19 <- prep.Inj_data_plots_19 %>% 
+  mutate('1sal_00min' = sal_00min,
+         '1sal_05min' = sal_05min,
+         '1sal_10min' = sal_10min,
+         '1sal_15min' = sal_15min,
+         '1sal_20min' = sal_20min,
+         '2lido_00min' = lido_00min,
+         '2lido_05min' = lido_05min,
+         '2lido_10min' = lido_10min,
+         '2lido_15min' = lido_15min,
+         '2lido_20min' = lido_20min)
+                                                                     
+
+  Inj_data_plots_19 <- prep.Inj_data_plots_19 %>% 
+    select('1sal_00min',
+         '1sal_05min',
+         '1sal_10min',
+         '1sal_15min',
+         '1sal_20min',
+         '2lido_00min',
+         '2lido_05min',
+         '2lido_10min',
+         '2lido_15min',
+         '2lido_20min')  %>% 
+   keep(is.numeric) %>%                       # Using numeric columns
+  gather() %>%
+  ggplot(aes(value)) +                       #plotting
+    facet_wrap(~ key, scales = "free",nrow = 2, ncol = 5) +
+    geom_bar(fill = "#FFDB6D", color = "black")  +
+    labs(title="Injection Pain Distributions",
+         subtitle="2019 \nHistograms of Subject Reported Pain Levels",
+         caption="Source: Lidocaine & Saline Pain Levels 0 to 20 minutes",
+         x="Reported Subject Pain Levels During Injections",
+         y="Frequency")
+
+  Inj_data_plots_19
+  
+#2020 Only
+
+
+prep.Inj_data_plots_20 <- cleaned_data_20[-c(1:3, 15,22,33:35)]
+
+prep.Inj_data_plots_20 <- prep.Inj_data_plots_20 %>% 
+  mutate('1sal_00min' = sal_00min,
+         '1sal_05min' = sal_05min,
+         '1sal_10min' = sal_10min,
+         '1sal_15min' = sal_15min,
+         '1sal_20min' = sal_20min,
+         '2lido_00min' = lido_00min,
+         '2lido_05min' = lido_05min,
+         '2lido_10min' = lido_10min,
+         '2lido_15min' = lido_15min,
+         '2lido_20min' = lido_20min)
+                                                                     
+
+  Inj_data_plots_20 <- prep.Inj_data_plots_20 %>% 
+    select('1sal_00min',
+         '1sal_05min',
+         '1sal_10min',
+         '1sal_15min',
+         '1sal_20min',
+         '2lido_00min',
+         '2lido_05min',
+         '2lido_10min',
+         '2lido_15min',
+         '2lido_20min')  %>% 
+   keep(is.numeric) %>%                       # Using numeric columns
+  gather() %>%
+  ggplot(aes(value)) +                       #plotting
+    facet_wrap(~ key, scales = "free",nrow = 2, ncol = 5) +
+    geom_bar(fill = "#FFDB6D", color = "black")  +
+    labs(title="Injection Pain Distributions",
+         subtitle="2020 \nHistograms of Subject Reported Pain Levels",
+         caption="Source: Lidocaine & Saline Pain Levels 0 to 20 minutes",
+         x="Reported Subject Pain Levels During Injections",
+         y="Frequency")
+
+ 
+ Inj_data_plots_20 
+  
+   
+#2021 Only
+
+
+prep.Inj_data_plots_21 <- cleaned_data_21[-c(1:3, 15,22,33:35)]
+
+prep.Inj_data_plots_21 <- prep.Inj_data_plots_21 %>% 
+  mutate('1sal_00min' = sal_00min,
+         '1sal_05min' = sal_05min,
+         '1sal_10min' = sal_10min,
+         '1sal_15min' = sal_15min,
+         '1sal_20min' = sal_20min,
+         '2lido_00min' = lido_00min,
+         '2lido_05min' = lido_05min,
+         '2lido_10min' = lido_10min,
+         '2lido_15min' = lido_15min,
+         '2lido_20min' = lido_20min)
+                                                                     
+
+  Inj_data_plots_21 <- prep.Inj_data_plots_21 %>% 
+    select('1sal_00min',
+         '1sal_05min',
+         '1sal_10min',
+         '1sal_15min',
+         '1sal_20min',
+         '2lido_00min',
+         '2lido_05min',
+         '2lido_10min',
+         '2lido_15min',
+         '2lido_20min')  %>% 
+   keep(is.numeric) %>%                       # Using numeric columns
+  gather() %>%
+  ggplot(aes(value)) +                       #plotting
+    facet_wrap(~ key, scales = "free",nrow = 2, ncol = 5) +
+    geom_bar(fill = "#FFDB6D", color = "black")  +
+    labs(title="Injection Pain Distributions",
+         subtitle="2021 \nHistograms of Subject Reported Pain Levels",
+         caption="Source: Lidocaine & Saline Pain Levels 0 to 20 minutes",
+         x="Reported Subject Pain Levels During Injections",
+         y="Frequency")
+  
+Inj_data_plots_21  
 ```
 
 # flip lido and sal and 2019, 2020 & 2021
@@ -125,14 +255,14 @@ library(GGally)
 Proportion Of Injections Per Site
 ```{r}
 
-
+#2014-2019
 g <- ggplot(cleaned_data, aes(reorder(site, inj_location, na.rm = TRUE)))
 g + geom_bar(aes(fill=inj_location), width = 0.5) + 
   theme(axis.text.x = element_text(angle=65, vjust=0.6)) + 
   labs(title="Histogram on Categorical Variable", 
        subtitle="Manufacturer across Vehicle Classes") +
    theme(legend.position = "bottom") + 
-    labs(title="Injection Location by Site", 
+    labs(title="Injection Location by Site 2014-2019", 
          subtitle="Histogram of Injections By Injection Location",
          caption="Source: Injection Data",
          x="Site",
@@ -146,10 +276,99 @@ injection_location_summary <- cleaned_data %>%
 
 injection_location_summary
 
-```
-# See this by year 2019-21
-(lower priority)
 
+#2019
+g_19 <- ggplot(cleaned_data_19, aes(reorder(site, inj_location, na.rm = TRUE)))
+g_19 + geom_bar(aes(fill=inj_location), width = 0.5) + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) + 
+  labs(title="Histogram on Categorical Variable", 
+       subtitle="Manufacturer across Vehicle Classes") +
+   theme(legend.position = "bottom") + 
+    labs(title="Injection Location by Site 2019", 
+         subtitle="Histogram of Injections By Injection Location",
+         caption="Source: Injection Data",
+         x="Site",
+         y="Sum")
+
+
+#Summary injection location
+injection_location_summary_19 <- cleaned_data_19 %>% 
+  select(inj_location, site) %>%  tbl_summary()
+
+
+injection_location_summary_19
+
+
+
+#2020
+g_20 <- ggplot(cleaned_data_20, aes(reorder(site, inj_location, na.rm = TRUE)))
+g_20 + geom_bar(aes(fill=inj_location), width = 0.5) + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) + 
+  labs(title="Histogram on Categorical Variable", 
+       subtitle="Manufacturer across Vehicle Classes") +
+   theme(legend.position = "bottom") + 
+    labs(title="Injection Location by Site 2020", 
+         subtitle="Histogram of Injections By Injection Location",
+         caption="Source: Injection Data",
+         x="Site",
+         y="Sum")
+
+
+#Summary injection location
+injection_location_summary_20 <- cleaned_data_20 %>% 
+  select(inj_location, site) %>%  tbl_summary()
+
+
+injection_location_summary_20
+
+
+#2021
+g_21 <- ggplot(cleaned_data_21, aes(reorder(site, inj_location, na.rm = TRUE)))
+g_21 + geom_bar(aes(fill=inj_location), width = 0.5) + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) + 
+  labs(title="Histogram on Categorical Variable", 
+       subtitle="Manufacturer across Vehicle Classes") +
+   theme(legend.position = "bottom") + 
+    labs(title="Injection Location by Site 2021", 
+         subtitle="Histogram of Injections By Injection Location",
+         caption="Source: Injection Data",
+         x="Site",
+         y="Sum")
+
+
+#Summary injection location
+injection_location_summary_21 <- cleaned_data_21 %>% 
+  select(inj_location, site) %>%  tbl_summary()
+
+
+injection_location_summary_21
+
+
+
+# Overall %
+cleaned_data_21 %>% drop_na(inj_location)   %>% 
+  ggplot( aes(x = factor(site), 
+                          y = prop.table(stat(count)), 
+                          fill = factor(inj_location), 
+                          label = scales::percent(prop.table(stat(count))))) +
+    geom_bar(position = "dodge") + 
+    geom_text(stat = 'count',
+              position = position_dodge(.5), 
+              vjust = -0.5, 
+              size = 3) + 
+    scale_y_continuous(labels = scales::percent) + 
+    labs(x = 'Site', y = '%', fill = 'Injection Location:') +
+   theme(legend.position = "bottom") +
+  labs(title="Overall Injection Location Percentages by Site ", 
+         subtitle="Histogram of Injections By Injection Location",
+         caption="Source: Injection Data",
+         x="Site",
+         y="Sum")
+
+```
+
+#filter by injection passes
+#reorder
 
 ```{r}
 count_subjects_passed <- cleaned_data %>% 
@@ -197,7 +416,7 @@ saline_pass_boxplot <- cleaned_data %>% select(
   coord_flip()  + 
     labs(title="Boxplot of Total Percent Change in Pain Post Saline", 
          subtitle="",
-         caption="Pain levels relative to saline needle insertion up to 20 minutes",
+         caption="Pain levels relative to saline at needle insertion",
          x="Failed [0] : Passed [1]",
          y=" % Change in Pain")
 
@@ -214,7 +433,7 @@ lidocaine_pass_boxplot <- cleaned_data %>% select(
   theme(legend.position = "top") +
   coord_flip()  + 
     labs(title="Boxplot of Total Percent Change in Pain Post Lidocaine", 
-         caption="Pain levels relative to saline needle insertion up to 20 minutes",
+         caption="Pain levels relative to saline at needle insertion",
          x="Failed [0] : Passed [1]",
          y=" % Change in Pain")
 
@@ -222,6 +441,7 @@ lidocaine_pass_boxplot
 
  
 ```
+#Change pass fail labels to "pass" easier to read, self explanatory
 
 
 
@@ -259,10 +479,73 @@ ggplot() +
 
 
 ```{r}
+
+#2019
+
+s_19 <- ggplot(data = cleaned_data_19, aes(reorder(site, sal_change_in_pain, na.rm = TRUE), sal_change_in_pain))
+s_19 + geom_boxplot(varwidth=T, fill="plum") + 
+    labs(title="Box plot", 
+         subtitle="Change in Pain During Saline Injection Grouped by Site 2019 \nAscending in order of median",
+         caption="Source: Initial Pain - 20 min Saline Pain",
+         x="Site",
+         y="Saline Change In Pain")
+
+
+l_19 <- ggplot(data = cleaned_data_19, aes(reorder(site, -lido_change_in_pain, na.rm = TRUE), lido_change_in_pain))
+l_19 + geom_boxplot(varwidth=T, fill="plum") + 
+    labs(title="Box plot", 
+         subtitle="Change in Pain During Lidocaine Injection Grouped by Site 2019 \nDescending in order of median",
+         caption="Source: Initial Pain - 20 min Lidocaine Pain",
+         x="Site",
+         y="Lidocaine Change In Pain")
+
+
+#2020
+
+s_20 <- ggplot(data = cleaned_data_20, aes(reorder(site, sal_change_in_pain, na.rm = TRUE), sal_change_in_pain))
+s_20 + geom_boxplot(varwidth=T, fill="plum") + 
+    labs(title="Box plot", 
+         subtitle="Change in Pain During Saline Injection Grouped by Site 2020 \nAscending in order of median",
+         caption="Source: Initial Pain - 20 min Saline Pain",
+         x="Site",
+         y="Saline Change In Pain")
+
+
+l_20 <- ggplot(data = cleaned_data_20, aes(reorder(site, -lido_change_in_pain, na.rm = TRUE), lido_change_in_pain))
+l_20 + geom_boxplot(varwidth=T, fill="plum") + 
+    labs(title="Box plot", 
+         subtitle="Change in Pain During Lidocaine Injection Grouped by Site 2020 \nDescending in order of median",
+         caption="Source: Initial Pain - 20 min Lidocaine Pain",
+         x="Site",
+         y="Lidocaine Change In Pain")
+
+#2021
+
+s_21 <- ggplot(data = cleaned_data_21, aes(reorder(site, sal_change_in_pain, na.rm = TRUE), sal_change_in_pain))
+s_21 + geom_boxplot(varwidth=T, fill="plum") + 
+    labs(title="Box plot", 
+         subtitle="Change in Pain During Saline Injection Grouped by Site 2021 \nAscending in order of median",
+         caption="Source: Initial Pain - 20 min Saline Pain",
+         x="Site",
+         y="Saline Change In Pain")
+
+
+l_21 <- ggplot(data = cleaned_data_21, aes(reorder(site, -lido_change_in_pain, na.rm = TRUE), lido_change_in_pain))
+l_21 + geom_boxplot(varwidth=T, fill="plum") + 
+    labs(title="Box plot", 
+         subtitle="Change in Pain During Lidocaine Injection Grouped by Site 2021 \nDescending in order of median",
+         caption="Source: Initial Pain - 20 min Lidocaine Pain",
+         x="Site",
+         y="Lidocaine Change In Pain")
+
+
+
+#Overall
+
 s <- ggplot(data = cleaned_data, aes(reorder(site, sal_change_in_pain, na.rm = TRUE), sal_change_in_pain))
 s + geom_boxplot(varwidth=T, fill="plum") + 
     labs(title="Box plot", 
-         subtitle="Change in Pain During Saline Injection Grouped by Site \nAscending in order of median",
+         subtitle="Change in Pain During Saline Injection Grouped by Site 2014-2019 \nAscending in order of median",
          caption="Source: Initial Pain - 20 min Saline Pain",
          x="Site",
          y="Saline Change In Pain")
@@ -271,80 +554,108 @@ s + geom_boxplot(varwidth=T, fill="plum") +
 l <- ggplot(data = cleaned_data, aes(reorder(site, -lido_change_in_pain, na.rm = TRUE), lido_change_in_pain))
 l + geom_boxplot(varwidth=T, fill="plum") + 
     labs(title="Box plot", 
-         subtitle="Change in Pain During Lidocaine Injection Grouped by Site \nDescending in order of median",
+         subtitle="Change in Pain During Lidocaine Injection Grouped by Site 2014-2019 \nDescending in order of median",
          caption="Source: Initial Pain - 20 min Lidocaine Pain",
          x="Site",
          y="Lidocaine Change In Pain")
 ```
-
-# 2019, 2020, 2021 - 
-# pain score
+#How well they passed, change to pct_change
 
 
 
 ```{r}
-pie <- ggplot(cleaned_data_19_21, aes(x = "", fill = factor(inj_location))) + 
+#2014-2021
+pie <- ggplot(cleaned_data_14_21, aes(x = "", fill = factor(inj_location))) + 
   geom_bar(width = 1) +
   theme(axis.line = element_blank(), 
         plot.title = element_text(hjust=0.5)) + 
   labs(fill="class", 
        x=NULL, 
        y=NULL, 
-       title="Pie Chart Injection Location", 
-       caption="Source: mpg")
+       title="Pie Chart Injection Location 14-21", 
+       caption="Source: Injection Location Data")
   
 pie + coord_polar(theta = "y", start=0)
 
-
-df <- as.data.frame(table(cleaned_data$lido_pct_change_in_pain))
-colnames(df) <- c("class", "freq")
-pie <- ggplot(df, aes(x = "", y=freq, fill = factor(class))) + 
-  geom_bar(width = 1, stat = "identity") +
+#2019-2021
+pie_19_21 <- ggplot(cleaned_data_19_21, aes(x = "", fill = factor(inj_location))) + 
+  geom_bar(width = 1) +
   theme(axis.line = element_blank(), 
         plot.title = element_text(hjust=0.5)) + 
   labs(fill="class", 
        x=NULL, 
        y=NULL, 
-       title="Pie Chart of class", 
-       caption="Source: mpg")
+       title="Pie Chart Injection Location 19-21", 
+       caption="Source: Injection Location Data")
+  
+pie_19_21 + coord_polar(theta = "y", start=0)
 
-pie + coord_polar(theta = "y", start=0)
+#2019
+pie_19 <- ggplot(cleaned_data_19, aes(x = "", fill = factor(inj_location))) + 
+  geom_bar(width = 1) +
+  theme(axis.line = element_blank(), 
+        plot.title = element_text(hjust=0.5)) + 
+  labs(fill="class", 
+       x=NULL, 
+       y=NULL, 
+       title="Pie Chart Injection Location 2019", 
+       caption="Source: Injection Location Data")
+  
+pie_19 + coord_polar(theta = "y", start=0)
+
+#2020
+pie_20 <- ggplot(cleaned_data_20, aes(x = "", fill = factor(inj_location))) + 
+  geom_bar(width = 1) +
+  theme(axis.line = element_blank(), 
+        plot.title = element_text(hjust=0.5)) + 
+  labs(fill="class", 
+       x=NULL, 
+       y=NULL, 
+       title="Pie Chart Injection Location 2020", 
+       caption="Source: Injection Location Data")
+  
+pie_20 + coord_polar(theta = "y", start=0)
+
+#2021
+pie_21 <- ggplot(cleaned_data_21, aes(x = "", fill = factor(inj_location))) + 
+  geom_bar(width = 1) +
+  theme(axis.line = element_blank(), 
+        plot.title = element_text(hjust=0.5)) + 
+  labs(fill="class", 
+       x=NULL, 
+       y=NULL, 
+       title="Pie Chart Injection Location 2021", 
+       caption="Source: Injection Location Data")
+  
+pie_21 + coord_polar(theta = "y", start=0)
+
   
 ```
 
 
 ```{r}
-
+#Time series
 ggplot(cleaned_data_19_21, aes(x=visit_dates)) + 
   geom_line(aes(y=lido_pct_change_in_pain)) + 
-  labs(title="Time Series Chart", 
-       subtitle="Returns Percentage from 'Economics' Dataset", 
-       caption="Source: Economics", 
-       y="Returns %")
+  labs(title="Time Series Chart Of Subject Pain Change", 
+       caption="Source: Injection data", 
+       y="% Change in Pain")
 
-
-
-
-
-
-
-df <- economics[, c("date", "psavert", "uempmed")]
-df <- df[lubridate::year(df$date) %in% c(1967:1981), ]
 
 # labels and breaks for X axis text
-brks <- df$date[seq(1, length(df$date), 12)]
-lbls <- lubridate::year(brks)
+brks <- cleaned_data$visit_dates[seq(1, length(cleaned_data$visit_dates), 12)]
+lbls <- lubridate::ymd(brks)
 
-# plot
-ggplot(df, aes(x=date)) + 
-  geom_line(aes(y=psavert, col="psavert")) + 
-  geom_line(aes(y=uempmed, col="uempmed")) + 
-  labs(title="Time Series of Returns Percentage", 
-       subtitle="Drawn From Wide Data format", 
-       caption="Source: Economics", y="Returns %") +  # title and caption
+#plot
+ggplot(cleaned_data, aes(x=visit_dates)) + 
+  geom_line(aes(y=lido_pct_change_in_pain, col="lidocaine")) + 
+  geom_line(aes(y=sal_pct_change_in_pain, col="saline")) + 
+  labs(title="Time Series Chart Of Subject Pain Change", 
+ 
+       caption="Source: Injection data", y="% Pain Change") +  # title and caption
   scale_x_date(labels = lbls, breaks = brks) +  # change to monthly ticks and labels
   scale_color_manual(name="", 
-                     values = c("psavert"="#00ba38", "uempmed"="#f8766d")) +  # line color
+                     values = c("lidocaine"="#00ba38", "saline"="#f8766d")) +  # line color
   theme(panel.grid.minor = element_blank())  # turn off minor grid
 ```
 
