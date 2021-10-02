@@ -151,6 +151,7 @@ prep.Inj_data_plots_19 <- prep.Inj_data_plots_19 %>%
          y="Frequency")
 
   Inj_data_plots_19
+  ggsave(filename = "2019-21 Injection Pain Distributions.png")
   
 #2020 Only
 
@@ -237,6 +238,7 @@ prep.Inj_data_plots_21 <- prep.Inj_data_plots_21 %>%
          y="Frequency")
   
 Inj_data_plots_21  
+
 ```
 
 # flip lido and sal and 2019, 2020 & 2021
@@ -353,8 +355,8 @@ cleaned_data_21 %>% drop_na(inj_location)   %>%
                           label = scales::percent(prop.table(stat(count))))) +
     geom_bar(position = "dodge") + 
     geom_text(stat = 'count',
-              position = position_dodge(.5), 
-              vjust = -0.5, 
+              position = position_dodge2(.05), 
+              vjust = -0.9, 
               size = 3) + 
     scale_y_continuous(labels = scales::percent) + 
     labs(x = 'Site', y = '%', fill = 'Injection Location:') +
@@ -363,8 +365,31 @@ cleaned_data_21 %>% drop_na(inj_location)   %>%
          subtitle="Histogram of Injections By Injection Location",
          caption="Source: Injection Data",
          x="Site",
-         y="Sum")
+         y="Percent")
+ggsave(filename = "Overall Percent of Injection Location.png")
 
+#overall% by Passes
+passed<- cleaned_data_21 %>% filter(pass == 1)   %>% 
+  ggplot( aes(x = factor(site), 
+                          y = prop.table(stat(count)), 
+                          fill = factor(inj_location), 
+                          label = scales::percent(prop.table(stat(count))))) +
+    geom_bar(position = "dodge") + 
+    geom_text(stat = 'count',
+              position = position_dodge2(.05), 
+              vjust = -0.9, 
+              size = 3) + 
+    scale_y_continuous(labels = scales::percent) + 
+    labs(x = 'Site', y = '%', fill = 'Injection Location:') +
+   theme(legend.position = "bottom") +
+  labs(title="Injection Location Percentages of Passed Subjects by Site ", 
+         subtitle="Histogram of Injections By Injection Location",
+         caption="Source: Injection Data",
+         x="Site",
+         y="Percent")
+
+passed
+ggsave(filename = "Injection Location Percentages of Passed Subjects by Site.png")
 ```
 
 #filter by injection passes
