@@ -1,0 +1,124 @@
+---
+title: "Location of Pain Injection"
+author: "Rumil"
+date: "10/4/2021"
+output: html_document
+---
+
+Proportion Of Injections Per Site
+```{r}
+
+#2014-2019
+g <- ggplot(cleaned_data, aes(reorder(site, inj_location, na.rm = TRUE)))
+g + geom_bar(aes(fill=inj_location), width = 0.5) + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) + 
+  labs(title="Histogram on Categorical Variable", 
+       subtitle="Manufacturer across Vehicle Classes") +
+   theme(legend.position = "bottom") + 
+    labs(title="Injection Location by Site 2014-2019", 
+         subtitle="Histogram of Injections By Injection Location",
+         caption="Source: Injection Data",
+         x="Site",
+         y="Sum")
+
+
+#Summary injection location
+injection_location_summary <- cleaned_data %>% 
+  select(inj_location, site) %>%  tbl_summary()
+
+
+injection_location_summary
+
+
+#2019
+g_19 <- ggplot(cleaned_data_19, aes(reorder(site, inj_location, na.rm = TRUE)))
+g_19 + geom_bar(aes(fill=inj_location), width = 0.5) + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) + 
+  labs(title="Histogram on Categorical Variable", 
+       subtitle="Manufacturer across Vehicle Classes") +
+   theme(legend.position = "bottom") + 
+    labs(title="Injection Location by Site 2019", 
+         subtitle="Histogram of Injections By Injection Location",
+         caption="Source: Injection Data",
+         x="Site",
+         y="Sum")
+
+
+#Summary injection location
+injection_location_summary_19 <- cleaned_data_19 %>% 
+  select(inj_location, site) %>%  tbl_summary()
+
+
+injection_location_summary_19
+
+
+
+#2020
+g_20 <- ggplot(cleaned_data_20, aes(reorder(site, inj_location, na.rm = TRUE)))
+g_20 + geom_bar(aes(fill=inj_location), width = 0.5) + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) + 
+  labs(title="Histogram on Categorical Variable", 
+       subtitle="Manufacturer across Vehicle Classes") +
+   theme(legend.position = "bottom") + 
+    labs(title="Injection Location by Site 2020", 
+         subtitle="Histogram of Injections By Injection Location",
+         caption="Source: Injection Data",
+         x="Site",
+         y="Sum")
+
+
+#Summary injection location
+injection_location_summary_20 <- cleaned_data_20 %>% 
+  select(inj_location, site) %>%  tbl_summary()
+
+
+injection_location_summary_20
+
+
+#2021
+g_21 <- ggplot(cleaned_data_21, aes(reorder(site, inj_location, na.rm = TRUE)))
+g_21 + geom_bar(aes(fill=inj_location), width = 0.5) + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) + 
+  labs(title="Histogram on Categorical Variable", 
+       subtitle="Manufacturer across Vehicle Classes") +
+   theme(legend.position = "bottom") + 
+    labs(title="Injection Location by Site 2021", 
+         subtitle="Histogram of Injections By Injection Location",
+         caption="Source: Injection Data",
+         x="Site",
+         y="Sum")
+
+
+#Summary injection location
+injection_location_summary_21 <- cleaned_data_21 %>% 
+  select(inj_location, site) %>%  tbl_summary()
+
+
+injection_location_summary_21
+
+
+
+# Overall %
+cleaned_data_21 %>% drop_na(inj_location)   %>% 
+  ggplot( aes(x = factor(site), 
+                          y = prop.table(stat(count)), 
+                          fill = factor(inj_location), 
+                          label = scales::percent(prop.table(stat(count))))) +
+    geom_bar(position = "dodge") + 
+    geom_text(stat = 'count',
+              position = position_dodge2(.05), 
+              vjust = -0.9, 
+              size = 3) + 
+    scale_y_continuous(labels = scales::percent) + 
+    labs(x = 'Site', y = '%', fill = 'Injection Location:') +
+   theme(legend.position = "bottom") +
+  labs(title="Overall Injection Location Percentages by Site ", 
+         subtitle="Histogram of Injections By Injection Location",
+         caption="Source: Injection Data",
+         x="Site",
+         y="Percent")
+```
+
+order sites in order
+
+
