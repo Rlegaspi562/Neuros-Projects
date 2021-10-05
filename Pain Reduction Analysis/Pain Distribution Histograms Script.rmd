@@ -228,7 +228,7 @@ Inj_data_plots_21
 ```
 
 
-### filtered by subjects who passed only
+### filtered by subjects who passed and failed
 ```{r}
 prep.Inj_data_plots_19_21 <- cleaned_data_19_21[-c(1:3, 15,22,33,35)]
 colnames(prep.Inj_data_plots_19_21)
@@ -269,9 +269,57 @@ prep.Inj_data_plots_19_21 <- prep.Inj_data_plots_19_21 %>% filter(pass == 1) %>%
          x="Reported Subject Pain Levels During Injections",
          y="Frequency")
   
-  Inj_data_plots_19_21_passed
+  
+prep.Inj_data_plots_19_21 <- cleaned_data_19_21[-c(1:3, 15,22,33,35)]
+colnames(prep.Inj_data_plots_19_21)
+
+
+prep.Inj_data_plots_19_21 <- prep.Inj_data_plots_19_21 %>% filter(pass == 0) %>% 
+  mutate('1sal_00min' = sal_00min,
+         '1sal_05min' = sal_05min,
+         '1sal_10min' = sal_10min,
+         '1sal_15min' = sal_15min,
+         '1sal_20min' = sal_20min,
+         '2lido_00min' = lido_00min,
+         '2lido_05min' = lido_05min,
+         '2lido_10min' = lido_10min,
+         '2lido_15min' = lido_15min,
+         '2lido_20min' = lido_20min)
+                                                                     
+
+  Inj_data_plots_19_21_failed <- prep.Inj_data_plots_19_21 %>% 
+    select('1sal_00min',
+         '1sal_05min',
+         '1sal_10min',
+         '1sal_15min',
+         '1sal_20min',
+         '2lido_00min',
+         '2lido_05min',
+         '2lido_10min',
+         '2lido_15min',
+         '2lido_20min')  %>% 
+   keep(is.numeric) %>%                       # Using numeric columns
+  gather() %>%
+  ggplot(aes(value)) +                       #plotting
+    facet_wrap(~ key, scales = "free",nrow = 2, ncol = 5) +
+    geom_bar(fill = "#00BFC4", color = "black")  +
+    labs(title="Injection Pain Distributions of Failed Subjects",
+         subtitle="JAN2019 - AUG2021 \nHistograms of Subject Reported Pain Levels",
+         caption="Source: Lidocaine & Saline Pain Levels 0 to 20 minutes",
+         x="Reported Subject Pain Levels During Injections",
+         y="Frequency")  
+  
+  
+  
+  
   Inj_data_plots_19_21
+  Inj_data_plots_19_21_passed
+  Inj_data_plots_19_21_failed
 ```
+
+# Points
+- Notice the pain levels for saline injections for passed subject remain relatively the same in comparison failed subjects whose pain distrbution start to skew towards the right or kind of just go all over the place.
+
 
 How much of the subjects that passed, passed lidocaine with an even or odd number?
 
